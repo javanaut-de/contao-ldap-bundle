@@ -53,10 +53,15 @@ class LdapPerson
     {
         $strLdapModelClass = static::$strLdapModel;
         $arrPerson         = $strLdapModelClass::findByUsername($strUsername);
-
+        
+        if(!$arrPerson) {
+            die('Person not found.');
+        }
+        
         if ($arrPerson)
         {
-            if (!ldap_bind(Ldap::getConnection(), $arrPerson['dn'], $strPassword))
+        	//die('trying to bind:'.$arrPerson['dn']);
+            if (!ldap_bind(Ldap::getConnection(strtolower(static::$strPrefix)), $arrPerson['dn'], $strPassword))
             {
                 return false;
             }
@@ -284,19 +289,24 @@ class LdapPerson
     }
 
     /**
-     * Adds active remote ldap group's local representation keeping the non ldap contao groups
+     * Adds active remote ldap group's local representation
+	 " keeping the non ldap contao groups
      *
      * @param       $objPerson
      * @param       $arrSelectedGroups
      */
     public static function addGroups($objPerson, $arrSelectedGroups)
     {
+
+		\System::log(json_encode($objPerson), 'addGroups/objPerson', 'debug');
+		\System::log(json_encode($arrSelectedGroups), 'addGroups/arrSelectedGroups', 'debug');
+
         $strLocalGroupClass = static::$strLocalGroupModel;
         $strLdapGroupClass  = static::$strLdapGroupModel;
         $strLdapModelClass  = static::$strLdapModel;
 
         $arrGroups           = deserialize($objPerson->groups, true);
-        $objLocalLdapGroups  = $strLocalGroupClass::findBy(['(ldapGid > 0)'], null);
+        $objLocalLdapGroups  = $strLocalGroupClass::findBy(["(ldapGid <> '')"], null);
         $arrRemoteLdapGroups = $strLdapModelClass::getRemoteLdapGroupIdsByUid($objPerson->ldapUid);
 
         if ($objLocalLdapGroups !== null)

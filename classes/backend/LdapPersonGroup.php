@@ -2,6 +2,10 @@
 
 namespace HeimrichHannot\Ldap\Backend;
 
+use Contao\CheckBoxWizard;
+use Contao\Form;
+use Contao\Widget;
+
 class LdapPersonGroup
 {
     protected static $strPrefix          = '';
@@ -10,26 +14,36 @@ class LdapPersonGroup
     protected static $strLdapGroupModel  = '';
     protected static $strLocalGroupModel = '';
 
+	/*
+	 * Die Methode wird vom Framework aufgerufen
+	 * um das Auswahlfeld für die LDAP-Felder zu
+	 * generieren.
+	 *
+	 * options_callback
+	 */
     public static function getLdapPersonGroupsAsOptions()
     {
         $arrGroups = [];
 
-        if (!is_array($arrGroups))
+		// TODO Check remove
+        /*if (!is_array($arrGroups))
+        {
+            return [];
+        }*/
+
+        $strLdapGroupModel = static::$strLdapGroupModel;
+        $arrLdapGroups    = $strLdapGroupModel::findAll();
+
+        if (!is_array($arrLdapGroups))
         {
             return [];
         }
 
-        $strLdapGroupModelClass = static::$strLdapGroupModel;
-        $arrRemoteLdapGroups    = $strLdapGroupModelClass::findAll();
-
-        if (!is_array($arrRemoteLdapGroups))
+        foreach ($arrLdapGroups as $strId => $arrGroup)
         {
-            return [];
-        }
-
-        foreach ($arrRemoteLdapGroups as $strId => $arrGroup)
-        {
-            $arrGroups[$strId] = $arrGroup['label'];
+            //$encodedDN = \Input::encodeSpecialChars(base64_encode(trim($arrGroup['dn'])));
+            
+            $arrGroups[$arrGroup['dn']] = trim($arrGroup['cn']);
         }
 
         asort($arrGroups);
@@ -40,6 +54,8 @@ class LdapPersonGroup
     /**
      * Add local member groups as representation of remote ldap groups
      *
+	 * save_callback
+	 *
      * @param $varValue
      *
      * @return mixed
@@ -53,10 +69,14 @@ class LdapPersonGroup
 
         $arrSelectedGroups = deserialize($varValue, true);
 
+		//\System::log(json_encode($arrSelectedGroups),'$arrSelectedGroups','updatePersonGroups()');
+
         if (!empty($arrSelectedGroups))
         {
             $strLdapGroupModel = static::$strLdapGroupModel;
             $arrGroups         = $strLdapGroupModel::findAll();
+
+			//\System::log(json_encode($arrGroups),'arrGroups','updatePersonGroups()');
 
             if (!is_array($arrGroups) || empty($arrGroups))
             {
@@ -64,18 +84,33 @@ class LdapPersonGroup
             }
 
             $strLocalGroupModel = static::$strLocalGroupModel;
-            foreach ($arrSelectedGroups as $intSelectedId)
+            foreach ($arrSelectedGroups as $selectedDN)
             {
-                if (in_array($intSelectedId, array_keys($arrGroups)))
+
+				//\System::log($selectedCN,'selectedCN','updatePersonGroups()');
+
+				// TODO hier wird über cn statt über dn gematched
+
+                if (in_array($selectedDN, array_keys($arrGroups)))
                 {
-                    if (($objGroup = $strLocalGroupModel::findByLdapGid($intSelectedId)) === null)
+                    //$decodedDN = base64_decode(str_replace('&#61;', '=', substr($selectedDN,0,strlen($selectedDN)-1)));
+                    
+                    if (($objGroup = $strLocalGroupModel::findByLdapGid($selectedDN)) === null)
                     {
                         $objGroup          = new $strLocalGroupModel();
-                        $objGroup->ldapGid = $intSelectedId;
+                        $objGroup->ldapGid = $selectedDN;
                     }
 
                     $objGroup->tstamp = time();
-                    $objGroup->name   = $GLOBALS['TL_LANG']['MSC']['ldapGroupPrefix'] . $arrGroups[$intSelectedId]['label'];
+
+					$groupLabel = '';
+					foreach($arrGroups as $group) {
+						if($group['dn'] == $selectedDN) {
+                    		$objGroup->name   = $GLOBALS['TL_LANG']['MSC']['ldapGroupPrefix'] . $group['cn'];
+                    	}
+					}
+                    
+                    //\System::log(json_encode($arrGroups), 'LdapPersonGroup::updatePersonGroup', 'debug');
 
                     $objGroup->save();
                 }
@@ -87,5 +122,12 @@ class LdapPersonGroup
         }
 
         return $varValue;
+    }
+
+    public static function loadPersonGroups($value, $container) {
+
+        //die('yo!');
+
+        return $value;
     }
 }

@@ -173,7 +173,7 @@ $arrFields = [
         'exclude'          => true,
         'filter'           => true,
         'inputType'        => 'checkboxWizard',
-        'eval'             => ['multiple' => true, 'tl_class' => 'long clr'],
+        'eval'             => ['maxlength' => 360, 'multiple' => true, 'tl_class' => 'long clr'],
         // save_callback and options_callback is set dynamically below
     ]
 ];
@@ -196,9 +196,16 @@ $arrDca['fields'] = array_merge(
     ]
 );
 
+
+
 // dynamically add fields for members and users
 foreach ($arrFields as $strField => $arrData)
 {
+
+ //\System::log($strField.' => ldapUser'.ucfirst($strField),'tl_settings', TL_GENERAL);
+
+
+
     if ($strField == 'groupFieldMapping')
     {
         continue;
@@ -219,4 +226,7 @@ $arrDca['fields']['ldapMemberGroups']['save_callback']    = [
 $arrDca['fields']['ldapUserGroups']['options_callback'] = ['HeimrichHannot\Ldap\Backend\LdapUserGroup', 'getLdapPersonGroupsAsOptions'];
 $arrDca['fields']['ldapUserGroups']['save_callback']    = [
     ['HeimrichHannot\Ldap\Backend\LdapUserGroup', 'updatePersonGroups']
+];
+$arrDca['fields']['ldapUserGroups']['load_callback']    = [
+    ['HeimrichHannot\Ldap\Backend\LdapUserGroup', 'loadPersonGroups']
 ];

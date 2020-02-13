@@ -11,6 +11,11 @@ abstract class LdapPersonModel extends \Model
     protected static $strLdapGroupModel     = '';
     protected static $strLocalGroupModel    = '';
 
+	/*
+	 * Die Methode holt alle Personen aus einem
+	 * LDAP-Benutzerverzeichnis und gibt diese
+	 * als Array zurück.
+	 */
     public static function findAll(array $arrOptions = [])
     {
         if ($objConnection = Ldap::getConnection(strtolower(static::$strPrefix)))
@@ -51,16 +56,21 @@ abstract class LdapPersonModel extends \Model
         {
             $strFilter = '(&(' . \Config::get('ldap' . static::$strPrefix . 'LdapUsernameField') . '=' . $strUsername . ')' . \Config::get(
                     'ldap' . static::$strPrefix . 'PersonFilter'
-                ) . ')';
+                ) . ')'; 
 
             $arrAttributes = static::$arrRequiredAttributes;
             $arrAttributes = static::addAttributes($arrAttributes);
+            
+            //die('ldap' . static::$strPrefix . 'PersonBase');$arrGroup['cn']
+            //die('dn: '.\Config::get('ldap' . static::$strPrefix . 'PersonBase').'<br />filter: '.$strFilter.'<br /> attributes: '.$arrAttributes);
 
+            
             // search by username
-            $strQuery = ldap_search($objConnection, \Config::get('ldap' . static::$strPrefix . 'Base'), $strFilter, $arrAttributes);
+            $strQuery = ldap_search($objConnection, \Config::get('ldap' . static::$strPrefix . 'PersonBase'), $strFilter, $arrAttributes);
 
             if (!$strQuery)
             {
+            	die('findByUsername: query failed');
                 return null;
             }
 

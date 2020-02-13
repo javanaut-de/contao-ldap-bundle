@@ -18,7 +18,7 @@ class Ldap extends \System
     public static function connect($strMode)
     {
         $strPrefix = 'ldap' . ucfirst($strMode);
-
+        
         if (($strHost = \Config::get($strPrefix . 'Host'))
             && ($strPort = \Config::get($strPrefix . 'Port'))
             && ($strBindDn = \Config::get($strPrefix . 'Binddn'))
@@ -26,20 +26,29 @@ class Ldap extends \System
         )
         {
             $strAuthMethod = \Config::get($strPrefix . 'AuthMethod');
-            $objConnection = ldap_connect(($strAuthMethod == 'ssl' ? 'ldaps://' : 'ldap://') . $strHost, $strPort)
-            or die ('Could not connect to LDAP server.');
-
+            $objConnection = ldap_connect(($strAuthMethod == 'ssl' ? 'ldaps://' : 'ldap://') . $strHost, $strPort);
+            
             if (!is_resource($objConnection))
             {
+            	\Config::persist('addLdapForUsers',false);
+            	\Config::persist($strPrefix . 'Password','');
+            	\Message::addError('Could not connect to LDAP server. Disabling LDAP login for users.');
+            	\Controller::reload();
                 return false;
             }
 
-            ldap_set_option($objConnection, LDAP_OPT_PROTOCOL_VERSION, 3);
-            ldap_set_option($objConnection, LDAP_OPT_REFERRALS, 0);
+            if(!ldap_set_option($objConnection, LDAP_OPT_PROTOCOL_VERSION, 3)) {
+            	\Message::addError('LDAPv3 is not supported');
+            }
+            
+            if(!ldap_set_option($objConnection, LDAP_OPT_REFERRALS, 0)) {
+            	\Message::addError('Following LDAP referrals could not be disabled.');
+            }
 
             // check if bind dn can connect to ldap server
             if (!ldap_bind($objConnection, $strBindDn, $strPassword))
             {
+            	\Message::addError('LDAP binding failed');
                 return false;
             }
 
