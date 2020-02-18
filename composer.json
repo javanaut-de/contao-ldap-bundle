@@ -23,8 +23,8 @@
     },
     "require": {
         "contao/core": "*",
-        "heimrichhannot/contao-request-bundle": "^1.0.0",
-        "heimrichhannot/contao-multi-column-editor-bundle": "^2.4.0"
+        "heimrichhannot/contao-request": "^1.0.0",
+        "heimrichhannot/contao-multi_column_editor": "^1.0.0"
     },
     "autoload": {
         "classmap": [""]
