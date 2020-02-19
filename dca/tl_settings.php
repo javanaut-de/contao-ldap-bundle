@@ -230,3 +230,9 @@ $arrDca['fields']['ldapUserGroups']['save_callback']    = [
 $arrDca['fields']['ldapUserGroups']['load_callback']    = [
     ['HeimrichHannot\Ldap\Backend\LdapUserGroup', 'loadPersonGroups']
 ];
+
+
+
+
+
+

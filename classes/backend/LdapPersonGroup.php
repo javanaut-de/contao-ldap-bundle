@@ -5,6 +5,12 @@ namespace HeimrichHannot\Ldap\Backend;
 use Contao\CheckBoxWizard;
 use Contao\Form;
 use Contao\Widget;
+//use HeimrichHannot\Ldap;
+
+//use Symfony\Component\Debug\ErrorHandler;
+
+//use Psr\Log\LogLevel;
+use Contao\CoreBundle\Monolog\ContaoContext;
 
 class LdapPersonGroup
 {
@@ -13,6 +19,20 @@ class LdapPersonGroup
     protected static $strLocalModel      = '';
     protected static $strLdapGroupModel  = '';
     protected static $strLocalGroupModel = '';
+
+	//public $logger;
+
+	//public function __construct() {
+        //$c = \System::getContainer();
+
+		//throw new \Exception("yolo!");
+		
+		
+		//$logger->info('Look! I just used a service');
+		//$logger->error('Ein Log-Eintrag',
+			//array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
+		//throw new \Exception('x');
+    //}
 
 	/*
 	 * Die Methode wird vom Framework aufgerufen
@@ -39,12 +59,10 @@ class LdapPersonGroup
             return [];
         }
 
-        foreach ($arrLdapGroups as $strId => $arrGroup)
-        {
-            //$encodedDN = \Input::encodeSpecialChars(base64_encode(trim($arrGroup['dn'])));
-            
-            $arrGroups[$arrGroup['dn']] = trim($arrGroup['cn']);
-        }
+        foreach ($arrLdapGroups as $strId => $arrGroup) {
+			$encodedDN = \Input::encodeSpecialChars(base64_encode($arrGroup['dn']));
+			$arrGroups[$encodedDN] = $arrGroup['cn'];
+		}
 
         asort($arrGroups);
 
@@ -62,17 +80,39 @@ class LdapPersonGroup
      */
     public static function updatePersonGroups($varValue)
     {
-        if (!\Config::get('addLdapFor' . static::$strPrefix . 's'))
-        {
+		//$handler = new ErrorHandler();
+		//ErrorHandler::register($handler);
+		//$handler->handleError(E_NOTICE,'yolo','x.php',77);
+
+		//$logger->info('zuul',$varValue);
+
+		//\System::getContainer()->get('logger')->error(yolo', array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
+		
+		//$this->get('logger')->error('yolo', array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
+
+		//throw new \Exception('x');
+
+		Logger::getLogger();
+
+        if (!\Config::get('addLdapFor' . static::$strPrefix . 's')) {
             return $varValue;
         }
 
         $arrSelectedGroups = deserialize($varValue, true);
 
+		dump($arrSelectedGroups);
+
+		//throw new \Exception("y");
+
 		//\System::log(json_encode($arrSelectedGroups),'$arrSelectedGroups','updatePersonGroups()');
 
         if (!empty($arrSelectedGroups))
         {
+
+			foreach($arrSelectedGroups as $k => $v) {
+				$arrSelectedGroups[$k] = base64_decode(\Input::decodeEntities($v));
+			}
+
             $strLdapGroupModel = static::$strLdapGroupModel;
             $arrGroups         = $strLdapGroupModel::findAll();
 
@@ -98,7 +138,7 @@ class LdapPersonGroup
                     if (($objGroup = $strLocalGroupModel::findByLdapGid($selectedDN)) === null)
                     {
                         $objGroup          = new $strLocalGroupModel();
-                        $objGroup->ldapGid = $selectedDN;
+                        $objGroup->dn = $selectedDN;
                     }
 
                     $objGroup->tstamp = time();
@@ -124,10 +164,22 @@ class LdapPersonGroup
         return $varValue;
     }
 
+	/*
+	 * load_callback
+	 */
     public static function loadPersonGroups($value, $container) {
 
-        //die('yo!');
+        $arrSelectedGroups = deserialize($value);
 
-        return $value;
+		if($arrSelectedGroups !== null) {
+
+			foreach($arrSelectedGroups as $k => $v) {
+				$arrSelectedGroups[$k] = base64_decode(\Input::decodeEntities($v));
+			}
+
+			$value = serialize($arrSelectedGroups);
+		}
+
+		return $value;
     }
 }

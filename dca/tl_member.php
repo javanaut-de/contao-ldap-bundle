@@ -5,10 +5,10 @@ $arrDca = &$GLOBALS['TL_DCA']['tl_member'];
 /**
  * Fields
  */
-$arrDca['fields']['ldapUid'] = [
- 'label'     => 'uid',
+$arrDca['fields']['dn'] = [
+ 'label'     => 'Member DN',
     'exclude'   => true,
     'inputType' => 'text',
     'eval'      => array('maxlength'=>255),
-    'sql' => "varchar(255) NOT NULL default ''",
+    'sql' => "varchar(255) DEFAULT NULL",
 ];

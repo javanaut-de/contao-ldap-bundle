@@ -1,9 +1,12 @@
 <?php
 
+use DebugBar\StandardDebugBar;
+
 namespace HeimrichHannot\Ldap;
 
 abstract class LdapPersonGroupModel extends \Model
 {
+
     protected static $arrRequiredAttributes = ['cn', 'uniqueMember']; // TODO dn?
     protected static $strPrefix             = '';
     protected static $strLdapModel          = '';
@@ -17,6 +20,13 @@ abstract class LdapPersonGroupModel extends \Model
 
         if ($objConnection)
         {
+
+			/*
+			 * ldap_search(<link>, <dn>, <filter>, <fields>)
+			 *
+			 * filter: (string) Ldap Suchklausel (objectClass=*)
+			 * fields: (array) Angeforderte Attribute ['dn','cn']
+			 */
             $strQuery = ldap_search(
                 $objConnection,
                 \Config::get('ldap'.static::$strPrefix.'GroupBase'), // 'ldap' . static::$strPrefix . 'Base'
@@ -52,19 +62,11 @@ abstract class LdapPersonGroupModel extends \Model
 					//\System::log(json_encode($arrGroup),'LdapPersonGroupModelfindAll()/$arrGroup','debug');
                 
 					$arrGroups[] = [
-						'dn' 	=> \Input::encodeSpecialChars(base64_encode($arrGroup['dn'])),
+						'dn' 	=> $arrGroup['dn'],
 						'cn'   => $arrGroup['cn'][0],
                         'persons' => $arrGroup['uniquemember']['count'] > 0 ? $arrGroup['uniquemember'] : []
                     ];
 				}
-                
-                /*if ($arrGroup['gidnumber']['count'] > 0)
-                {
-                    $arrGroups[$arrGroup['gidnumber'][0]] = [
-                        'label'   => $arrGroup['cn']['count'] > 0 ? $arrGroup['cn'][0] : $arrGroup['gidnumber'][0],
-                        'persons' => $arrGroup['memberuid']['count'] > 0 ? $arrGroup['memberuid'] : []
-                    ];
-                }*/
             }
 
             return $arrGroups;
@@ -88,7 +90,7 @@ abstract class LdapPersonGroupModel extends \Model
         {
             $strLocalGroupModelClass = static::$strLocalGroupModel;
 
-            $objGroup = $strLocalGroupModelClass::findBy('ldapGid', $currentGid);
+            $objGroup = $strLocalGroupModelClass::findBy('dn', $currentGid);
             if ($objGroup !== null)
             {
                 $arrResult[] = $objGroup->id;

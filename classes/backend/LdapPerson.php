@@ -119,7 +119,7 @@ class LdapPerson
             // mark remotely missing persons as disabled
             $arrFoundUids[] = $strUid;
 
-            $objPerson = $strLocalModelClass::findBy(['username=? OR ldapUid=?'], [$strUsername, $strUid]);
+            $objPerson = $strLocalModelClass::findBy(['username=? OR dn=?'], [$strUsername, $strUid]);
 
             $objPerson = static::createOrUpdatePerson($objPerson, $arrPerson, $strUsername, $arrSelectedGroups);
 
@@ -131,7 +131,7 @@ class LdapPerson
         {
             while ($objPersons->next())
             {
-                if ($objPersons->ldapUid && !in_array($objPersons->ldapUid, $arrFoundUids))
+                if ($objPersons->dn && !in_array($objPersons->dn, $arrFoundUids))
                 {
                     $objPersons->disable = true;
                     $objPersons->save();
@@ -306,12 +306,12 @@ class LdapPerson
         $strLdapModelClass  = static::$strLdapModel;
 
         $arrGroups           = deserialize($objPerson->groups, true);
-        $objLocalLdapGroups  = $strLocalGroupClass::findBy(["(ldapGid <> '')"], null);
+        $objLocalLdapGroups  = $strLocalGroupClass::findBy(["(dn IS NOT NULL)"], null);
         $arrRemoteLdapGroups = $strLdapModelClass::getRemoteLdapGroupIdsByUid($objPerson->ldapUid);
 
         if ($objLocalLdapGroups !== null)
         {
-            $arrLocalLdapPersonGroups = $objLocalLdapGroups->fetchEach('ldapGid');
+            $arrLocalLdapPersonGroups = $objLocalLdapGroups->fetchEach('dn');
 
             $objPerson->groups = serialize(
                 array_merge(

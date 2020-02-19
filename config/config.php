@@ -1,5 +1,7 @@
 <?php
 
+$GLOBALS['TL_CONFIG']['displayErrors'] = true;
+
 /**
  * Frontend modules
  */
