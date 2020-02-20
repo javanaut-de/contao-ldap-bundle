@@ -1,6 +1,6 @@
 <?php
 
-$GLOBALS['TL_CONFIG']['displayErrors'] = true;
+//$GLOBALS['TL_CONFIG']['displayErrors'] = true;
 
 /**
  * Frontend modules

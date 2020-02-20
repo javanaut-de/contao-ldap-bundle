@@ -34,7 +34,9 @@ ClassLoader::addClasses(array
 	'HeimrichHannot\Ldap\Backend\LdapMember'      => 'system/modules/ldap/classes/backend/LdapMember.php',
 	'HeimrichHannot\Ldap\Backend\LdapMemberGroup' => 'system/modules/ldap/classes/backend/LdapMemberGroup.php',
 	'HeimrichHannot\Ldap\Ldap'                    => 'system/modules/ldap/classes/Ldap.php',
-	'HeimrichHannot\Ldap\Logger'                  => 'system/modules/ldap/classes/Logger.php',
+	'HeimrichHannot\Ldap\Logr'                    => 'system/modules/ldap/classes/Logr.php',
+	'HeimrichHannot\Ldap\LogrFactory'                    => 'system/modules/ldap/classes/LogrFactory.php',
+
 
 
 	// Models

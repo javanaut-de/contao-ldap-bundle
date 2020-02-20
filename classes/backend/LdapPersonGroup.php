@@ -5,12 +5,16 @@ namespace HeimrichHannot\Ldap\Backend;
 use Contao\CheckBoxWizard;
 use Contao\Form;
 use Contao\Widget;
-//use HeimrichHannot\Ldap;
+
+use HeimrichHannot\Ldap\Logr;
+use HeimrichHannot\Ldap\LogrFactory;
 
 //use Symfony\Component\Debug\ErrorHandler;
 
 //use Psr\Log\LogLevel;
-use Contao\CoreBundle\Monolog\ContaoContext;
+//use Contao\CoreBundle\Monolog\ContaoContext;
+
+//use Psr\Log\LoggerInterface;
 
 class LdapPersonGroup
 {
@@ -20,7 +24,12 @@ class LdapPersonGroup
     protected static $strLdapGroupModel  = '';
     protected static $strLocalGroupModel = '';
 
-	//public $logger;
+	//private static $logger = null;
+
+	//public static function setLogger(LoggerInterface $lgr) {
+				//\System::log('logger injected','','');
+    //    self::$logger = $lgr;
+  //  }
 
 	//public function __construct() {
         //$c = \System::getContainer();
@@ -80,31 +89,40 @@ class LdapPersonGroup
      */
     public static function updatePersonGroups($varValue)
     {
+	
+ 
+		if (!\Config::get('addLdapFor' . static::$strPrefix . 's')) {
+			return $varValue;
+		}
+
+        $arrSelectedGroups = deserialize($varValue, true);
+
+		//dump($arrSelectedGroups);
+
+		//throw new \Exception("y");
+		
 		//$handler = new ErrorHandler();
 		//ErrorHandler::register($handler);
 		//$handler->handleError(E_NOTICE,'yolo','x.php',77);
 
 		//$logger->info('zuul',$varValue);
 
-		//\System::getContainer()->get('logger')->error(yolo', array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
+		//\System::getContainer()->get('ldap.logger')->error('yolo', array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
 		
 		//$this->get('logger')->error('yolo', array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
 
+		//self::$logger->error('yolo', array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
+		
 		//throw new \Exception('x');
 
-		Logger::getLogger();
-
-        if (!\Config::get('addLdapFor' . static::$strPrefix . 's')) {
-            return $varValue;
-        }
-
-        $arrSelectedGroups = deserialize($varValue, true);
-
-		dump($arrSelectedGroups);
-
-		//throw new \Exception("y");
-
 		//\System::log(json_encode($arrSelectedGroups),'$arrSelectedGroups','updatePersonGroups()');
+		
+		//$logr = new Logr();
+		//throw new \Exception('x');
+		//die(get_class($logr));
+		
+		$logr = LogrFactory::createLogr();
+		$logr->error('!');
 
         if (!empty($arrSelectedGroups))
         {
