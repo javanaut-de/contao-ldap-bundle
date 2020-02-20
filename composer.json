@@ -1,5 +1,5 @@
 {
-    "name": "refulgent/contao-ldap",
+    "name": "refulgent/contao-ldap-support-bundle",
     "description":"Modification of module contao-ldap from Heimrich & Hannot to support Contao 4.4",
     "keywords":["contao", "ldap", "auth", "module", "developer"],
     "type": "contao-module",
