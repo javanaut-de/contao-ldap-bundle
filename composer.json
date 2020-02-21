@@ -26,14 +26,17 @@
         "heimrichhannot/contao-request": "^1.0.0",
         "heimrichhannot/contao-multi_column_editor": "^1.0.0"
     },
-    "autoload": {
-        "classmap": [""]
+   "extra": {
+        "contao-manager-plugin": "Refulgent\\ContaoLDAPSupportBundle\\ContaoManager\\Plugin"
     },
-    "extra": {
-        "contao": {
-            "sources": {
-                "": "system/modules/ldap"
-            }
+    "autoload": {
+        "psr-4": {
+            "Refulgent\\ContaoLDAPSupportBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Refulgent\\ContaoLDAPSupportBundle\\Tests\\": "tests/"
         }
     }
 }
