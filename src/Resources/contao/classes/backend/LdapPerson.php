@@ -1,6 +1,6 @@
 <?php
 
-namespace HeimrichHannot\Ldap\Backend;
+namespace Refulgent\ContaoLDAPSupportBundle\Legacy\Ldap\Backend;
 
 use HeimrichHannot\Ldap\Ldap;
 

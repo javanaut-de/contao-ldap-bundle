@@ -1,8 +1,6 @@
 <?php
 
-use DebugBar\StandardDebugBar;
-
-namespace HeimrichHannot\Ldap;
+namespace Refulgent\ContaoLDAPSupportBundle\Legacy\Ldap;
 
 abstract class LdapPersonGroupModel extends \Model
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace HeimrichHannot\Ldap;
+namespace Refulgent\ContaoLDAPSupportBundle\Legacy\Ldap;
 
 abstract class LdapPersonModel extends \Model
 {
