@@ -1,6 +1,6 @@
 <?php
 
-namespace Refulgent\ContaoLDAPSupportBundle\Legacy\Ldap;
+namespace Refulgent\ContaoLDAPSupportBundle;
 
 abstract class LdapPersonGroupModel extends \Model
 {

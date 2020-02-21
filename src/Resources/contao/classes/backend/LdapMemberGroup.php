@@ -1,12 +1,12 @@
 <?php
 
-namespace Refulgent\ContaoLDAPSupportBundle\Legacy\Ldap\Backend;
+namespace Refulgent\ContaoLDAPSupportBundle\Backend;
 
 class LdapMemberGroup extends LdapPersonGroup
 {
     protected static $strPrefix          = 'Member';
     protected static $strLocalModel      = '\MemberModel';
     protected static $strLocalGroupModel = '\MemberGroupModel';
-    protected static $strLdapModel       = 'Refulgent\ContaoLDAPSupportBundle\Legacy\Ldap\LdapMemberModel';
-    protected static $strLdapGroupModel  = 'Refulgent\ContaoLDAPSupportBundle\Legacy\Ldap\LdapMemberGroupModel';
+    protected static $strLdapModel       = 'Refulgent\ContaoLDAPSupportBundle\Backend\LdapMemberModel';
+    protected static $strLdapGroupModel  = 'Refulgent\ContaoLDAPSupportBundle\Backend\LdapMemberGroupModel';
 }

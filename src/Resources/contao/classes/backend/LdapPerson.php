@@ -1,8 +1,8 @@
 <?php
 
-namespace Refulgent\ContaoLDAPSupportBundle\Legacy\Ldap\Backend;
+namespace Refulgent\ContaoLDAPSupportBundle\Backend;
 
-use HeimrichHannot\Ldap\Ldap;
+use Refulgent\ContaoLDAPSupportBundle\Ldap;
 
 class LdapPerson
 {

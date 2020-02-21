@@ -1,13 +1,13 @@
 <?php
 
-namespace Refulgent\ContaoLDAPSupportBundle\Legacy\Ldap\Backend;
+namespace Refulgent\ContaoLDAPSupportBundle\Backend;
 
 use Contao\CheckBoxWizard;
 use Contao\Form;
 use Contao\Widget;
 
-use HeimrichHannot\Ldap\Logr;
-use HeimrichHannot\Ldap\LogrFactory;
+use Refulgent\ContaoLDAPSupportBundle\Logr;
+use Refulgent\ContaoLDAPSupportBundle\LogrFactory;
 
 //use Symfony\Component\Debug\ErrorHandler;
 
