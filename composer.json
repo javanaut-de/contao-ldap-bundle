@@ -22,7 +22,7 @@
         "issues":"https://github.com/javanaut2018/contao-ldap/issues"
     },
     "require": {
-        "contao/core-bumdle": "^4.4",
+        "contao/core-bundle": "^4.4",
         "heimrichhannot/contao-request": "^1.0.0",
         "heimrichhannot/contao-multi_column_editor": "^1.0.0"
     },
