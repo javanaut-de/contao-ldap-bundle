@@ -5,7 +5,7 @@
 /**
  * Frontend modules
  */
-$GLOBALS['FE_MOD']['user']['ldapLogin'] = 'Refulgent\ContaoLDAPSupportBundle\ModuleLdapLogin';
+$GLOBALS['FE_MOD']['user']['ldapLogin'] = 'Refulgent\ContaoLDAPSupportBundle\ModuleLdapLogin'; // ref Ldap.php
 
 /**
  * Hooks
