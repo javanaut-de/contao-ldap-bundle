@@ -8,8 +8,6 @@ class Ldap extends \System
 {
     const LDAP_INVALID_CREDENTIALS = 49;
 
-    const MODULE_LDAP_LOGIN = 'ldapLogin';
-
     const MODE_MEMBER = 'member';
     const MODE_USER   = 'user';
 

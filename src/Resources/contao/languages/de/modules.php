@@ -3,5 +3,5 @@
 /**
  * Frontend modules
  */
-$GLOBALS['TL_LANG']['FMD'][\HeimrichHannot\Ldap\Ldap::MODULE_LDAP_LOGIN] =
+$GLOBALS['TL_LANG']['FMD']['ldapLogin'] =
     ['LDAP-Login', 'Erweitert das Loginformular um eine LDAP-Anbindung, die in den Einstellungen definiert wird.'];
