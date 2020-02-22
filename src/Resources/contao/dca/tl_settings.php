@@ -218,17 +218,17 @@ foreach ($arrFields as $strField => $arrData)
     $arrDca['subpalettes']['addLdapForUsers'] .= 'ldapUser' . ucfirst($strField) . ',';
 }
 
-$arrDca['fields']['ldapMemberGroups']['options_callback'] = ['HeimrichHannot\Ldap\Backend\LdapMemberGroup', 'getLdapPersonGroupsAsOptions'];
+$arrDca['fields']['ldapMemberGroups']['options_callback'] = ['Refulgent\ContaoLDAPSupportBundle\Backend\LdapMemberGroup', 'getLdapPersonGroupsAsOptions'];
 $arrDca['fields']['ldapMemberGroups']['save_callback']    = [
-    ['HeimrichHannot\Ldap\Backend\LdapMemberGroup', 'updatePersonGroups']
+    ['Refulgent\ContaoLDAPSupportBundle\Backend\LdapMemberGroup', 'updatePersonGroups']
 ];
 
 $arrDca['fields']['ldapUserGroups']['options_callback'] = ['HeimrichHannot\Ldap\Backend\LdapUserGroup', 'getLdapPersonGroupsAsOptions'];
 $arrDca['fields']['ldapUserGroups']['save_callback']    = [
-    ['HeimrichHannot\Ldap\Backend\LdapUserGroup', 'updatePersonGroups']
+    ['Refulgent\ContaoLDAPSupportBundle\Backend\LdapUserGroup', 'updatePersonGroups']
 ];
 $arrDca['fields']['ldapUserGroups']['load_callback']    = [
-    ['HeimrichHannot\Ldap\Backend\LdapUserGroup', 'loadPersonGroups']
+    ['Refulgent\ContaoLDAPSupportBundle\Backend\LdapUserGroup', 'loadPersonGroups']
 ];
 
 
