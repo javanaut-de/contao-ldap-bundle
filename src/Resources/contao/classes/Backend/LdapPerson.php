@@ -2,7 +2,7 @@
 
 namespace Refulgent\ContaoLDAPSupport;
 
-use Refulgent\ContaoLDAPSupportBundle\Ldap;
+use Refulgent\ContaoLDAPSupport\Ldap;
 
 class LdapPerson
 {
