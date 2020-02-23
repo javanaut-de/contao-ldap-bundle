@@ -97,3 +97,5 @@ abstract class LdapPersonGroupModel extends \Model
         return $arrResult;
     }
 }
+
+echo LdapPersonGroupModel::class;

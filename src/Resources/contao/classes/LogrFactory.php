@@ -10,4 +10,4 @@ class LogrFactory {
     }
 }
 
-?>
+echo LogrFactory::class;

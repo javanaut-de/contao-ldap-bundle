@@ -19,4 +19,5 @@ class Logr {
 //		die('setLogger()');
 //	}
 }
-?>
+
+echo Logr::class;

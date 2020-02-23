@@ -47,3 +47,5 @@ class ModuleLdapLogin extends \ModuleLogin
 
 
 }
+
+echo ModuleLdapLogin::class;

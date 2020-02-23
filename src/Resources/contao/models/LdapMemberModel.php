@@ -10,3 +10,5 @@ class LdapMemberModel extends LdapPersonModel
     protected static $strLdapModel       = 'Refulgent\ContaoLDAPSupport\LdapMemberModel';
     protected static $strLdapGroupModel  = 'Refulgent\ContaoLDAPSupport\LdapMemberGroupModel';
 }
+
+echo LdapMemberModel::class;

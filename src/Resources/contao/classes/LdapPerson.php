@@ -322,3 +322,5 @@ class LdapPerson
         }
     }
 }
+
+echo LdapPerson::class;
