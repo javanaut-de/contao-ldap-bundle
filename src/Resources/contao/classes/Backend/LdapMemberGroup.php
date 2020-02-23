@@ -1,6 +1,6 @@
 <?php
 
-namespace Refulgent\ContaoLDAPSupportBundle\Backend;
+namespace Refulgent\ContaoLDAPSupport;
 
 class LdapMemberGroup extends LdapPersonGroup
 {

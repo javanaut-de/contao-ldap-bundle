@@ -1,6 +1,6 @@
 <?php
 
-namespace Refulgent\ContaoLDAPSupportBundle;
+namespace Refulgent\ContaoLDAPSupport;
 
 use HeimrichHannot\Request\Request;
 
