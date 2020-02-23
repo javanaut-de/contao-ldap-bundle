@@ -223,7 +223,7 @@ $arrDca['fields']['ldapMemberGroups']['save_callback']    = [
     ['Refulgent\ContaoLDAPSupportBundle\Backend\LdapMemberGroup', 'updatePersonGroups']
 ];
 
-$arrDca['fields']['ldapUserGroups']['options_callback'] = ['HeimrichHannot\Ldap\Backend\LdapUserGroup', 'getLdapPersonGroupsAsOptions'];
+$arrDca['fields']['ldapUserGroups']['options_callback'] = ['Refulgent\ContaoLDAPSupportBundle\Backend\LdapUserGroup', 'getLdapPersonGroupsAsOptions'];
 $arrDca['fields']['ldapUserGroups']['save_callback']    = [
     ['Refulgent\ContaoLDAPSupportBundle\Backend\LdapUserGroup', 'updatePersonGroups']
 ];

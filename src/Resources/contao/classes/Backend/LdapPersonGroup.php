@@ -6,8 +6,8 @@ use Contao\CheckBoxWizard;
 use Contao\Form;
 use Contao\Widget;
 
-use Refulgent\ContaoLDAPSupportBundle\Logr;
-use Refulgent\ContaoLDAPSupportBundle\LogrFactory;
+//use Refulgent\ContaoLDAPSupportBundle\Logr;
+//use Refulgent\ContaoLDAPSupportBundle\LogrFactory;
 
 //use Symfony\Component\Debug\ErrorHandler;
 
@@ -60,8 +60,8 @@ class LdapPersonGroup
             return [];
         }*/
 
-        $strLdapGroupModel = static::$strLdapGroupModel;
-        $arrLdapGroups    = $strLdapGroupModel::findAll();
+        //$strLdapGroupModel = static::$strLdapGroupModel;
+        //$arrLdapGroups    = $strLdapGroupModel::findAll();
 
         if (!is_array($arrLdapGroups))
         {
@@ -121,8 +121,8 @@ class LdapPersonGroup
 		//throw new \Exception('x');
 		//die(get_class($logr));
 		
-		$logr = LogrFactory::createLogr();
-		$logr->error('!');
+		//$logr = LogrFactory::createLogr();
+		//$logr->error('!');
 
         if (!empty($arrSelectedGroups))
         {
@@ -174,7 +174,7 @@ class LdapPersonGroup
                 }
             }
 
-            $strClass = 'HeimrichHannot\Ldap\Backend\Ldap' . static::$strPrefix;
+            $strClass = 'Refulgent\ContaoLDAPSupportBundle\Backend\Ldap' . static::$strPrefix;
 
             $strClass::updatePersons($arrSelectedGroups);
         }
@@ -187,17 +187,19 @@ class LdapPersonGroup
 	 */
     public static function loadPersonGroups($value, $container) {
 
+		if($value !== null) {
+
         $arrSelectedGroups = deserialize($value);
 
-		if($arrSelectedGroups !== null) {
+			if($arrSelectedGroups !== null) {
 
-			foreach($arrSelectedGroups as $k => $v) {
-				$arrSelectedGroups[$k] = base64_decode(\Input::decodeEntities($v));
+				foreach($arrSelectedGroups as $k => $v) {
+					$arrSelectedGroups[$k] = base64_decode(\Input::decodeEntities($v));
+				}
+
+				$value = serialize($arrSelectedGroups);
 			}
-
-			$value = serialize($arrSelectedGroups);
 		}
-
 		return $value;
     }
 }
