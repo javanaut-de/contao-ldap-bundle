@@ -44,8 +44,4 @@ class ModuleLdapLogin extends \ModuleLogin
             $this->Template->username = $GLOBALS['TL_LANG']['MSC']['usernamemail'];
         }
     }
-
-
 }
-
-echo ModuleLdapLogin::class;
