@@ -1,4 +1,4 @@
-{
+	{
     "name": "refulgent/contao-ldap-support-bundle",
     "description":"Modification of module contao-ldap from Heimrich & Hannot to support Contao 4.4",
     "keywords":["contao", "ldap", "auth", "module", "developer"],
@@ -42,7 +42,7 @@
 	"classmap": [
 		"src/Resources/contao"
 	],
-	"exlude-from-classmap": [
+	"exclude-from-classmap": [
 		"src/Resources/contao/config",
 		"src/Resources/contao/dca",
 		"src/Resources/contao/languages",

@@ -9,5 +9,3 @@ class LogrFactory {
         return new Logr($logger);
     }
 }
-
-echo LogrFactory::class;
