@@ -117,28 +117,14 @@ class LdapPersonGroup
 
 		$strLocalGroupModel = static::$strLocalGroupModel;
 		$objGroup          = new $strLocalGroupModel();
+
 		\System::getContainer()->get('logger')->error('yolo', [$objGroup]);
-		
 
-		//$this->get('logger')->error('yolo', array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
-
-		//self::$logger->error('yolo', array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
-		
-		//throw new \Exception('x');
-
-		//\System::log(json_encode($arrSelectedGroups),'$arrSelectedGroups','updatePersonGroups()');
-		
-		//$logr = new Logr();
-		//throw new \Exception('x');
-		//die(get_class($logr));
-		
-		//$logr = LogrFactory::createLogr();
-		//$logr->error('!');
-
-		//$logr = \System::getContainer()->get('ldap.logger');
-		//$logr->logger->error('!!');
+		//\System::getContainer()->get('ldap.logger')->logger->error('!!');
 
 		dump($varValue);
+
+		//throw new \Exception('x');
 
         if (!empty($arrSelectedGroups))
         {
