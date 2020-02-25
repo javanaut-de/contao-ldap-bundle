@@ -102,25 +102,15 @@ class LdapPersonGroup
 		}
 
         $arrSelectedGroups = deserialize($varValue, true);
-
-		//dump($arrSelectedGroups);
-
-		//throw new \Exception("y");
 		
-		//$handler = new ErrorHandler();
-		//ErrorHandler::register($handler);
-		//$handler->handleError(E_NOTICE,'yolo','x.php',77);
-
-		//$logger->info('zuul',$varValue);
-
-		//\System::getContainer()->get('logger')->error('yolo', array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
-
 		$strLocalGroupModel = static::$strLocalGroupModel;
 		$objGroup          = new $strLocalGroupModel();
 
 		\System::getContainer()->get('logger')->error('yolo', [$objGroup]);
 
-		//\System::getContainer()->get('ldap.logger')->logger->error('!!');
+		\System::getContainer()->get('logger')->info('yolo', array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL), 'obj' => $objGroup));
+
+		\System::getContainer()->get('ldap.logger')->logger->critical('!!');
 
 		dump($varValue);
 
