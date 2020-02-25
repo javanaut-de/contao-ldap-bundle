@@ -130,7 +130,10 @@ class LdapPersonGroup
 		//$logr = LogrFactory::createLogr();
 		//$logr->error('!');
 
-		$logr = \System::getContainer()->get(Logr::class);
+		//$logr = \System::getContainer()->get('ldap.logger');
+		//$logr->logger->error('!!');
+
+		dump($varValue);
 
         if (!empty($arrSelectedGroups))
         {
