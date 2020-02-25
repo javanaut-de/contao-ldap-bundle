@@ -27,8 +27,6 @@ class ContaoLDAPSupportExtension extends Extension
             new FileLocator(__DIR__.'/../Resources/config')
         );
 
-		die('loader');
-
         $loader->load('services.yml');
     }
 }

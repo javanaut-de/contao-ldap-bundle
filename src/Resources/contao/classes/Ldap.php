@@ -88,5 +88,3 @@ class Ldap extends \System
         return $blnEmail2UsernameExtensionActive || $blnMailUsernameExtensionActive;
     }
 }
-
-echo Ldap::class;

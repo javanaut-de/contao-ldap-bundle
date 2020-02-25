@@ -15,7 +15,7 @@ services:
         public: false
 
     # makes classes in src/AppBundle available to be used as services
-    Refulgent\ContaoLDAPSupportBundle\:
+    Refulgent\ContaoLDAPSupportBundle\Service\:
         resource: '../../Service/*'
         # you can exclude directories or files
         # but if a service is unused, it's removed anyway
