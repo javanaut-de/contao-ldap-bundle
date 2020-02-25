@@ -6,7 +6,7 @@ use Contao\CheckBoxWizard;
 use Contao\Form;
 use Contao\Widget;
 
-use Refulgent\ContaoLDAPSupportBundle\Service\Logr;
+//use Refulgent\ContaoLDAPSupportBundle\Service\Logr;
 
 //use Psr\Log\LoggerInterface;
 
@@ -113,7 +113,7 @@ class LdapPersonGroup
 
 		//$logger->info('zuul',$varValue);
 
-		//\System::getContainer()->get('ldap.logger')->error('yolo', array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
+		\System::getContainer()->get('logger')->error('yolo', array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
 		
 		//$this->get('logger')->error('yolo', array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
 
@@ -133,7 +133,7 @@ class LdapPersonGroup
 		//$logr = \System::getContainer()->get('ldap.logger');
 		//$logr->logger->error('!!');
 
-		dump($varValue);
+		//dump($varValue);
 
         if (!empty($arrSelectedGroups))
         {

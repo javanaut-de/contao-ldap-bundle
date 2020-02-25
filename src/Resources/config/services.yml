@@ -12,7 +12,14 @@ services:
     _defaults:
         autowire: true
         autoconfigure: true
-        public: false
+        public: true
+
+ #   ldap.logger:
+ #       class: Refulgent\ContaoLDAPSupportBundle\Service\Logr
+ #       public: true
+ #       arguments:
+ #           - '@logger'
+
 
     # makes classes in src/AppBundle available to be used as services
  #   Refulgent\ContaoLDAPSupportBundle\Service\:
@@ -71,8 +78,3 @@ services:
  #       alias: 'monolog.logger'
  #       public: true
 
-    ldap.logger:
-        class: Refulgent\ContaoLDAPSupportBundle\Service\Logr
-        public: true
-        arguments:
-            - '@logger'
