@@ -6,6 +6,10 @@ use Contao\CheckBoxWizard;
 use Contao\Form;
 use Contao\Widget;
 
+use Refulgent\ContaoLDAPSupportBundle\Service\Logr;
+
+//use Psr\Log\LoggerInterface;
+
 //use Refulgent\ContaoLDAPSupportBundle\Logr;
 //use Refulgent\ContaoLDAPSupportBundle\LogrFactory;
 
@@ -24,24 +28,26 @@ class LdapPersonGroup
     protected static $strLdapGroupModel  = '';
     protected static $strLocalGroupModel = '';
 
-	//private static $logger = null;
+	//private $container;
+	//private $logger;
 
-	//public static function setLogger(LoggerInterface $lgr) {
-				//\System::log('logger injected','','');
-    //    self::$logger = $lgr;
-  //  }
+    /**
+     * Constructor assigns service container to private container. 
+     */
+    //public function __construct() {
 
-	//public function __construct() {
-        //$c = \System::getContainer();
-
-		//throw new \Exception("yolo!");
-		
-		
-		//$logger->info('Look! I just used a service');
-		//$logger->error('Ein Log-Eintrag',
-			//array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
-		//throw new \Exception('x');
+        //global $kernel;
+       // $this->container = $kernel->getContainer();
+		//$logger = $this->container->get('monolog.logger');
     //}
+
+
+	//private $logger = null;
+
+	//public function __construct(LoggerInterface $logger) {
+		//$this->logger = $logger;
+		//\System::log(json_encode($logger),'setLogger()','debug');
+	//}
 
 	/*
 	 * Die Methode wird vom Framework aufgerufen
@@ -123,6 +129,8 @@ class LdapPersonGroup
 		
 		//$logr = LogrFactory::createLogr();
 		//$logr->error('!');
+
+		$logr = \System::getContainer()->get(Logr::class);
 
         if (!empty($arrSelectedGroups))
         {

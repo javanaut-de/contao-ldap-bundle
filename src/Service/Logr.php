@@ -1,6 +1,6 @@
 <?php
 
-namespace Refulgent\ContaoLDAPSupport;
+namespace Refulgent\ContaoLDAPSupportBundle\Service;
 
 use Psr\Log\LoggerInterface;
 

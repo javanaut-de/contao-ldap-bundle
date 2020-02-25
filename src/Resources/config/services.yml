@@ -8,6 +8,20 @@ services:
             calls:
                 - ["setContainer", ["@service_container"]]
 
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    # makes classes in src/AppBundle available to be used as services
+    Refulgent\ContaoLDAPSupportBundle\:
+        resource: '../../Service/*'
+        # you can exclude directories or files
+        # but if a service is unused, it's removed anyway
+        # exclude: '../../src/AppBundle/{Entity,Repository}'
+
+
  #    HeimrichHannot\Ldap\Logr\:
  #        resource: "/var/www/de.grateful-death/system/modules/ldap/classes/Logr.php"
 
@@ -26,11 +40,12 @@ services:
  #           $logger: '@monolog.logger'
  
  #   ldap.logger:
+ #       public: true;
  #       arguments:
  #           $logger: '@monolog.logger'
  
  #   ldap.logger:
- #       class: HeimrichHannot\Ldap\Logr
+ #       class: Refulgent\ContaoLDAPSupport\LdapPersonGroup
  #       public: true
  #       arguments:
  #           - "@logger"
@@ -51,3 +66,7 @@ services:
  #       public: true
  #       factory:   ['@HeimrichHannot\Ldap\LogrFactory', createLogr]
  #       arguments: ['@logger']
+
+ #   ldap.logger:
+ #       alias: 'monolog.logger'
+ #       public: true
