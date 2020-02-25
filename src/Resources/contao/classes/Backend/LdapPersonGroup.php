@@ -16,7 +16,7 @@ use Contao\Widget;
 //use Symfony\Component\Debug\ErrorHandler;
 
 //use Psr\Log\LogLevel;
-//use Contao\CoreBundle\Monolog\ContaoContext;
+use Contao\CoreBundle\Monolog\ContaoContext;
 
 //use Psr\Log\LoggerInterface;
 
@@ -113,8 +113,13 @@ class LdapPersonGroup
 
 		//$logger->info('zuul',$varValue);
 
-		\System::getContainer()->get('logger')->error('yolo', array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
+		//\System::getContainer()->get('logger')->error('yolo', array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
+
+		$strLocalGroupModel = static::$strLocalGroupModel;
+		$objGroup          = new $strLocalGroupModel();
+		\System::getContainer()->get('logger')->error('yolo', [$objGroup]);
 		
+
 		//$this->get('logger')->error('yolo', array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
 
 		//self::$logger->error('yolo', array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
@@ -133,7 +138,7 @@ class LdapPersonGroup
 		//$logr = \System::getContainer()->get('ldap.logger');
 		//$logr->logger->error('!!');
 
-		//dump($varValue);
+		dump($varValue);
 
         if (!empty($arrSelectedGroups))
         {
