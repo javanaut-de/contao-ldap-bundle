@@ -8,6 +8,8 @@ use Contao\Widget;
 
 use Contao\CoreBundle\Monolog\ContaoContext;
 
+
+
 class LdapPersonGroup
 {
     protected static $strPrefix          = '';
@@ -27,25 +29,18 @@ class LdapPersonGroup
     {
 		\System::getContainer()
 			->get('logger')
-			->info('Invoke '.__FUNCTION__,
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
-
-        $arrGroups = [];
-
-		// TODO Check remove
-        /*if (!is_array($arrGroups))
-        {
-            return [];
-        }*/
 
         $strLdapGroupModel = static::$strLdapGroupModel;
         $arrLdapGroups = $strLdapGroupModel::findAll();
 
         if (!is_array($arrLdapGroups)) {
             return [];
-        }
+		}
 
-        foreach ($arrLdapGroups as $strId => $arrGroup) {
+		$arrGroups = [];
+        foreach ($arrLdapGroups as $key => $arrGroup) {
 			$encodedDN = \Input::encodeSpecialChars(base64_encode($arrGroup['dn']));
 			$arrGroups[$encodedDN] = $arrGroup['cn'];
 		}
@@ -54,7 +49,7 @@ class LdapPersonGroup
 
 		\System::getContainer()
 			->get('logger')
-			->info('Result '.__FUNCTION__,
+			->info('Result '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrGroups' => $arrGroups));
 
@@ -74,7 +69,7 @@ class LdapPersonGroup
     {
 		\System::getContainer()
 			->get('logger')
-			->info('Invoke '.__FUNCTION__,
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'varValue' => $varValue));
  
@@ -104,18 +99,15 @@ class LdapPersonGroup
 
 				// TODO hier wird über cn statt über dn gematched
 
-                if (in_array($selectedDN, array_keys($arrGroups)))
-                {
-                    //$decodedDN = base64_decode(str_replace('&#61;', '=', substr($selectedDN,0,strlen($selectedDN)-1)));
-                    
-                    if (($objGroup = $strLocalGroupModel::findByLdapGid($selectedDN)) === null) {
+                if (in_array($selectedDN, array_keys($arrGroups))) {
+            
+                    if (($objGroup = $strLocalGroupModel::findByDn($selectedDN)) === null) {
                         $objGroup = new $strLocalGroupModel();
                         $objGroup->dn = $selectedDN;
                     }
 
                     $objGroup->tstamp = time();
 
-					$groupLabel = '';
 					foreach($arrGroups as $group) {
 						if($group['dn'] == $selectedDN) {
                     		$objGroup->name   = $GLOBALS['TL_LANG']['MSC']['ldapGroupPrefix'] . $group['cn'];
@@ -140,7 +132,7 @@ class LdapPersonGroup
 
 		\System::getContainer()
 			->get('logger')
-			->info('Invoke '.__FUNCTION__,
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'value' => $value,
 					'container' => $container));
@@ -149,10 +141,10 @@ class LdapPersonGroup
 
         $arrSelectedGroups = deserialize($value);
 
-			if($arrSelectedGroups !== null) {
+			if($arrSelectedGroups !== null && !empty($arrSelectedGroups)) {
 
 				foreach($arrSelectedGroups as $k => $v) {
-					$arrSelectedGroups[$k] = base64_decode(\Input::decodeEntities($v));
+					$arrSelectedGroups[$k] = \Input::encodeSpecialChars(base64_encode($v));
 				}
 
 				$value = serialize($arrSelectedGroups);
@@ -161,7 +153,7 @@ class LdapPersonGroup
 
 		\System::getContainer()
 			->get('logger')
-			->info('Result '.__FUNCTION__,
+			->info('Result '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'value' => $value));
 

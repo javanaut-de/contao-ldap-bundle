@@ -21,7 +21,7 @@ class LdapPerson
     {
 		\System::getContainer()
 			->get('logger')
-			->info('Invoke '.__FUNCTION__,
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'strUsername' => $strUsername,
 					'strPassword' => $strPassword,
@@ -47,7 +47,7 @@ class LdapPerson
     {
 		\System::getContainer()
 			->get('logger')
-			->info('Invoke '.__FUNCTION__,
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'strUsername' => $strUsername,
 					'strPassword' => $strPassword,
@@ -71,7 +71,7 @@ class LdapPerson
     {
 		\System::getContainer()
 			->get('logger')
-			->info('Invoke '.__FUNCTION__,
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'strUsername' => $strUsername,
 					'strPassword' => $strPassword));
@@ -105,7 +105,7 @@ class LdapPerson
     {
 		\System::getContainer()
 			->get('logger')
-			->info('Invoke '.__FUNCTION__,
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrSelectedGroups' => $arrSelectedGroups));
 
@@ -116,7 +116,7 @@ class LdapPerson
             return;
         }
 
-        $arrFoundUids = [];
+        $arrFoundDNs = [];
 
         $arrSkipUsernames = trimsplit(',', \Config::get('ldap' . static::$strPrefix . 'SkipLdapUsernames'));
 
@@ -137,12 +137,10 @@ class LdapPerson
 			// should be maximum 1 -> else a better filter has to be set
             $strUsername = $arrPerson[\Config::get('ldap' . static::$strPrefix . 'LdapUsernameField')][0];
 
-
             if (in_array($strUsername, $arrSkipUsernames)) {
                 continue;
             }
 
-            
             if (Ldap::usernameIsEmail() && !\Validator::isEmail($strUsername)) {
                 continue;
             }
@@ -150,7 +148,7 @@ class LdapPerson
             // mark remotely missing persons as disabled
             $arrFoundDNs[] = $strDN;
 
-            $objPerson = $strLocalModelClass::findBy('dn', $dn);
+            $objPerson = $strLocalModelClass::findBy('dn', $strDN);
 
             $objPerson = static::createOrUpdatePerson($objPerson, $arrPerson, $strUsername, $arrSelectedGroups);
 
@@ -180,7 +178,7 @@ class LdapPerson
     {
 		\System::getContainer()
 			->get('logger')
-			->info('Invoke '.__FUNCTION__,
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'objPerson' => $objPerson,
 					'arrPerson' => $arrPerson,
@@ -194,8 +192,9 @@ class LdapPerson
         if ($objPerson === null)
         {
             $arrSkipUsernames = trimsplit(',', \Config::get('ldap' . static::$strPrefix . 'SkipLdapUsernames'));
+            $strUN = $arrPerson[\Config::get('ldap' . static::$strPrefix . 'LdapUsernameField')][0];
 
-            if (!is_array($arrPerson) || in_array($arrPerson['uid'][0], $arrSkipUsernames)) {
+            if (!is_array($arrPerson) || in_array($strUN, $arrSkipUsernames)) {
                 return false;
             }
 
@@ -205,7 +204,6 @@ class LdapPerson
             $objPerson->login    = true;
 			$objPerson->dn       = $arrPerson['dn'];
             $objPerson->username = $strUsername;
-            $objPerson->ldapUid  = $arrPerson['uid'][0];
 
             // store randomized password, so contao will always trigger the checkCredentials hook
             $objPerson->password = md5(time() . $strUsername);
@@ -258,7 +256,7 @@ class LdapPerson
     {
 		\System::getContainer()
 			->get('logger')
-			->info('Invoke '.__FUNCTION__,
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'objPerson' => $objPerson,
 					'arrRemoteLdapPerson' => $arrRemoteLdapPerson));
@@ -300,7 +298,7 @@ class LdapPerson
     {
 		\System::getContainer()
 			->get('logger')
-			->info('Invoke '.__FUNCTION__,
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrRemoteLdapPerson' => $arrRemoteLdapPerson,
 					'strLdapField' => $strLdapField));
@@ -339,7 +337,7 @@ class LdapPerson
     {
 		\System::getContainer()
 			->get('logger')
-			->info('Invoke '.__FUNCTION__,
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'objPerson' => $objPerson));
 
@@ -351,7 +349,7 @@ class LdapPerson
 
     /**
      * Adds active remote ldap group's local representation
-	 " keeping the non ldap contao groups
+	 * keeping the non ldap contao groups
      *
      * @param       $objPerson
      * @param       $arrSelectedGroups
@@ -360,7 +358,7 @@ class LdapPerson
     {
 		\System::getContainer()
 			->get('logger')
-			->info('Invoke '.__FUNCTION__,
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'objPerson' => $objPerson,
 					'arrSelectedGroups' => $arrSelectedGroups));
@@ -371,7 +369,7 @@ class LdapPerson
 
         $arrGroups           = deserialize($objPerson->groups, true);
         $objLocalLdapGroups  = $strLocalGroupClass::findBy(["(dn IS NOT NULL)"], null);
-        $arrRemoteLdapGroups = $strLdapModelClass::getRemoteLdapGroupIdsByUid($objPerson->dn);
+        $arrRemoteLdapGroups = $strLdapModelClass::getRemoteLdapGroupDNsByPersonDN($objPerson->dn);
 
         if ($objLocalLdapGroups !== null)
         {

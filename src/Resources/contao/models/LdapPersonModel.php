@@ -22,7 +22,7 @@ abstract class LdapPersonModel extends \Model
     {
 		\System::getContainer()
 			->get('logger')
-			->info('Invoke '.__FUNCTION__,
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrOptions' => $arrOptions));
 
@@ -50,7 +50,7 @@ abstract class LdapPersonModel extends \Model
 
 			\System::getContainer()
 				->get('logger')
-				->info('Invoke '.__FUNCTION__,
+				->info('Result '.__CLASS__.'::'.__FUNCTION__,
 					array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL), 
 						'arrResult' => $arrResult));
 
@@ -66,7 +66,7 @@ abstract class LdapPersonModel extends \Model
     {
 		\System::getContainer()
 			->get('logger')
-			->info('Invoke '.__FUNCTION__,
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'strUsername' => $strUsername));
 
@@ -78,16 +78,11 @@ abstract class LdapPersonModel extends \Model
 
             $arrAttributes = static::$arrRequiredAttributes;
             $arrAttributes = static::addAttributes($arrAttributes);
-            
-            //die('ldap' . static::$strPrefix . 'PersonBase');$arrGroup['cn']
-            //die('dn: '.\Config::get('ldap' . static::$strPrefix . 'PersonBase').'<br />filter: '.$strFilter.'<br /> attributes: '.$arrAttributes);
-
-            
+           
             // search by username
             $strQuery = ldap_search($objConnection, \Config::get('ldap' . static::$strPrefix . 'PersonBase'), $strFilter, $arrAttributes);
 
-            if (!$strQuery)
-            {
+            if (!$strQuery) {
             	die('findByUsername: query failed');
                 return null;
             }
@@ -100,14 +95,12 @@ abstract class LdapPersonModel extends \Model
 
 			\System::getContainer()
 				->get('logger')
-				->info('Result[0] '.__FUNCTION__,
+				->info('Result[0] '.__CLASS__.'::'.__FUNCTION__,
 					array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 						'arrResult' => $arrResult));
 
             return $arrResult[0];
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
@@ -116,7 +109,7 @@ abstract class LdapPersonModel extends \Model
     {
 		\System::getContainer()
 			->get('logger')
-			->info('Invoke '.__FUNCTION__,
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrAttributes' => $arrAttributes));
 
@@ -139,20 +132,20 @@ abstract class LdapPersonModel extends \Model
 
 		\System::getContainer()
 			->get('logger')
-			->info('Result '.__FUNCTION__,
+			->info('Result '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrAttributes' => $arrAttributes));
 
         return $arrAttributes;
     }
 
-    public static function getRemoteLdapGroupIdsByUid($strUid)
+    public static function getRemoteLdapGroupDNsByPersonDN($strDN)
     {
 		\System::getContainer()
 			->get('logger')
-			->info('Invoke '.__FUNCTION__,
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
-					'strUid' => $strUid));
+					'strDN' => $strDN));
 
         $strLdapGroupModelClass = static::$strLdapGroupModel;
 
@@ -160,24 +153,22 @@ abstract class LdapPersonModel extends \Model
 
         $arrGroups = [];
 
-        if (!is_array($arrRemoteLdapGroups))
-        {
+        if (!is_array($arrRemoteLdapGroups)) {
             return $arrGroups;
         }
 
-        foreach ($arrRemoteLdapGroups as $strId => $arrGroup)
+        foreach ($arrRemoteLdapGroups as $key => $arrGroup)
         {
-            if ($strId == 'count' || array_search($strUid, $arrGroup['persons']) === false)
-            {
+            if ($key == 'count' || array_search($strDN, $arrGroup['persons']) === false) {
                 continue;
             }
 
-            $arrGroups[] = $strId;
+            $arrGroups[] = $arrGroup['dn'];
         }
 
 		\System::getContainer()
 			->get('logger')
-			->info('Result '.__FUNCTION__,
+			->info('Result '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrGroups' => $arrGroups));
 

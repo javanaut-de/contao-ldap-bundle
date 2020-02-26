@@ -18,14 +18,13 @@ abstract class LdapPersonGroupModel extends \Model
     { 
 		\System::getContainer()
 			->get('logger')
-			->info('Invoke '.__FUNCTION__,
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrOptions' => $arrOptions));
 
         $objConnection = Ldap::getConnection(strtolower(static::$strPrefix));
 
-        if ($objConnection)
-        {
+        if ($objConnection) {
 
 			/*
 			 * ldap_search(<link>, <dn>, <filter>, <fields>)
@@ -39,34 +38,27 @@ abstract class LdapPersonGroupModel extends \Model
                 "(objectClass=*)",
                 static::$arrRequiredAttributes
             );
-            if (!$strQuery)
-            {
+
+            if (!$strQuery) {
             	die('ldap query failed');
                 return false;
             }
+
             $arrResult = ldap_get_entries($objConnection, $strQuery);
-            if (!is_array($arrResult))
-            {
+            
+            if (!is_array($arrResult)) {
                 return false;
             }
 
             $arrGroups = [];
-            foreach ($arrResult as $strKey => $arrGroup)
-            {
-            	// cn = arrGroup['cn'][0]
-            	// dn = arrGroup['dn']
-            
-               //\System::log($strKey . ' => ' . json_encode($arrGroup), 'groups','x');
-            
-                if ($strKey == 'count')
-                {
+            foreach ($arrResult as $key => $arrGroup) {      
+                
+                if ($key == 'count') {
                     continue;
                 }
                 
 				// matching groupOfUniqueNames
                 if (array_key_exists('uniquemember',$arrGroup)) {
-
-					//\System::log(json_encode($arrGroup),'LdapPersonGroupModelfindAll()/$arrGroup','debug');
                 
 					$arrGroups[] = [
 						'dn' 	=> $arrGroup['dn'],
@@ -78,38 +70,36 @@ abstract class LdapPersonGroupModel extends \Model
 
 			\System::getContainer()
 				->get('logger')
-				->info('Result '.__FUNCTION__,
+				->info('Result '.__CLASS__.'::'.__FUNCTION__,
 					array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 						'arrGroups' => $arrGroups));
 
             return $arrGroups;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
 
 	/*
 	 * Die Methode übersetzt arrayweise übergebene
-	 * LDAP-GID in Contao-GIDs.
+	 * LDAP-DNs in Contao-GIDs.
 	 *
 	 * TODO refactor
 	 */
-    public static function getLocalLdapGroupIds($arrRemoteLdapGroupIds)
+    public static function getLocalLdapGroupIds($arrRemoteLdapGroupDNs)
     {
 		\System::getContainer()
 			->get('logger')
-			->info('Invoke '.__FUNCTION__,
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
-					'arrRemoteLdapGroupIds' => $arrRemoteLdapGroupIds));
+					'arrRemoteLdapGroupDNs' => $arrRemoteLdapGroupDNs));
 
         $arrResult = [];
-        foreach ($arrRemoteLdapGroupIds as $currentGid)
+        foreach ($arrRemoteLdapGroupDNs as $currentGroupDN)
         {
             $strLocalGroupModelClass = static::$strLocalGroupModel;
 
-            $objGroup = $strLocalGroupModelClass::findBy('dn', $currentGid);
+            $objGroup = $strLocalGroupModelClass::findBy('dn', $currentGroupDN);
             if ($objGroup !== null)
             {
                 $arrResult[] = $objGroup->id;
@@ -118,7 +108,7 @@ abstract class LdapPersonGroupModel extends \Model
 
 		\System::getContainer()
 			->get('logger')
-			->info('Result '.__FUNCTION__,
+			->info('Result '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrResult' => $arrResult));
 
