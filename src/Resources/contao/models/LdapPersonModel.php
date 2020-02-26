@@ -2,6 +2,8 @@
 
 namespace Refulgent\ContaoLDAPSupport;
 
+use Contao\CoreBundle\Monolog\ContaoContext;
+
 abstract class LdapPersonModel extends \Model
 {
     protected static $arrRequiredAttributes = ['uid'];
@@ -18,6 +20,12 @@ abstract class LdapPersonModel extends \Model
 	 */
     public static function findAll(array $arrOptions = [])
     {
+		\System::getContainer()
+			->get('logger')
+			->info('Invoke '.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+					'arrOptions' => $arrOptions));
+
         if ($objConnection = Ldap::getConnection(strtolower(static::$strPrefix)))
         {
             $arrAttributes = static::$arrRequiredAttributes;
@@ -30,17 +38,21 @@ abstract class LdapPersonModel extends \Model
                 $arrAttributes
             );
 
-            if (!$strQuery)
-            {
+            if (!$strQuery) {
                 return false;
             }
 
             $arrResult = ldap_get_entries($objConnection, $strQuery);
 
-            if (!is_array($arrResult))
-            {
+            if (!is_array($arrResult)) {
                 return false;
             }
+
+			\System::getContainer()
+				->get('logger')
+				->info('Invoke '.__FUNCTION__,
+					array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL), 
+						'arrResult' => $arrResult));
 
             return $arrResult;
         }
@@ -52,6 +64,12 @@ abstract class LdapPersonModel extends \Model
 
     public static function findByUsername($strUsername)
     {
+		\System::getContainer()
+			->get('logger')
+			->info('Invoke '.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+					'strUsername' => $strUsername));
+
         if ($objConnection = Ldap::getConnection(strtolower(static::$strPrefix)))
         {
             $strFilter = '(&(' . \Config::get('ldap' . static::$strPrefix . 'LdapUsernameField') . '=' . $strUsername . ')' . \Config::get(
@@ -76,10 +94,15 @@ abstract class LdapPersonModel extends \Model
 
             $arrResult = ldap_get_entries($objConnection, $strQuery);
 
-            if (!is_array($arrResult) || empty($arrResult))
-            {
+            if (!is_array($arrResult) || empty($arrResult)) {
                 return null;
             }
+
+			\System::getContainer()
+				->get('logger')
+				->info('Result[0] '.__FUNCTION__,
+					array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+						'arrResult' => $arrResult));
 
             return $arrResult[0];
         }
@@ -91,6 +114,12 @@ abstract class LdapPersonModel extends \Model
 
     private static function addAttributes($arrAttributes)
     {
+		\System::getContainer()
+			->get('logger')
+			->info('Invoke '.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+					'arrAttributes' => $arrAttributes));
+
         foreach (deserialize(\Config::get('ldap' . static::$strPrefix . 'PersonFieldMapping'), true) as $arrMapping)
         {
             if (strpos($arrMapping['ldapField'], '%') !== false)
@@ -108,11 +137,23 @@ abstract class LdapPersonModel extends \Model
             }
         }
 
+		\System::getContainer()
+			->get('logger')
+			->info('Result '.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+					'arrAttributes' => $arrAttributes));
+
         return $arrAttributes;
     }
 
     public static function getRemoteLdapGroupIdsByUid($strUid)
     {
+		\System::getContainer()
+			->get('logger')
+			->info('Invoke '.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+					'strUid' => $strUid));
+
         $strLdapGroupModelClass = static::$strLdapGroupModel;
 
         $arrRemoteLdapGroups = $strLdapGroupModelClass::findAll();
@@ -133,6 +174,12 @@ abstract class LdapPersonModel extends \Model
 
             $arrGroups[] = $strId;
         }
+
+		\System::getContainer()
+			->get('logger')
+			->info('Result '.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+					'arrGroups' => $arrGroups));
 
         return $arrGroups;
     }

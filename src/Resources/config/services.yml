@@ -14,11 +14,11 @@ services:
         autoconfigure: true
         public: false
 
-    ldap.logger:
-        class: Refulgent\ContaoLDAPSupportBundle\Service\Logr
-        public: true
-        arguments:
-            - '@logger'
+  #  ldap.logger:
+  #      class: Refulgent\ContaoLDAPSupportBundle\Service\Logr
+  #      public: true
+  #      arguments:
+  #          - '@logger'
 
 
     # makes classes in src/AppBundle available to be used as services

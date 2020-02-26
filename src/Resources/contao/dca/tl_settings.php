@@ -201,13 +201,9 @@ $arrDca['fields'] = array_merge(
 // dynamically add fields for members and users
 foreach ($arrFields as $strField => $arrData)
 {
+	//\System::log($strField.' => ldapUser'.ucfirst($strField),'tl_settings', TL_GENERAL);
 
- //\System::log($strField.' => ldapUser'.ucfirst($strField),'tl_settings', TL_GENERAL);
-
-
-
-    if ($strField == 'groupFieldMapping')
-    {
+    if ($strField == 'groupFieldMapping') {
         continue;
     }
 

@@ -6,19 +6,7 @@ use Contao\CheckBoxWizard;
 use Contao\Form;
 use Contao\Widget;
 
-//use Refulgent\ContaoLDAPSupportBundle\Service\Logr;
-
-//use Psr\Log\LoggerInterface;
-
-//use Refulgent\ContaoLDAPSupportBundle\Logr;
-//use Refulgent\ContaoLDAPSupportBundle\LogrFactory;
-
-//use Symfony\Component\Debug\ErrorHandler;
-
-//use Psr\Log\LogLevel;
 use Contao\CoreBundle\Monolog\ContaoContext;
-
-//use Psr\Log\LoggerInterface;
 
 class LdapPersonGroup
 {
@@ -27,27 +15,6 @@ class LdapPersonGroup
     protected static $strLocalModel      = '';
     protected static $strLdapGroupModel  = '';
     protected static $strLocalGroupModel = '';
-
-	//private $container;
-	//private $logger;
-
-    /**
-     * Constructor assigns service container to private container. 
-     */
-    //public function __construct() {
-
-        //global $kernel;
-       // $this->container = $kernel->getContainer();
-		//$logger = $this->container->get('monolog.logger');
-    //}
-
-
-	//private $logger = null;
-
-	//public function __construct(LoggerInterface $logger) {
-		//$this->logger = $logger;
-		//\System::log(json_encode($logger),'setLogger()','debug');
-	//}
 
 	/*
 	 * Die Methode wird vom Framework aufgerufen
@@ -58,6 +25,11 @@ class LdapPersonGroup
 	 */
     public static function getLdapPersonGroupsAsOptions()
     {
+		\System::getContainer()
+			->get('logger')
+			->info('Invoke '.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
+
         $arrGroups = [];
 
 		// TODO Check remove
@@ -66,11 +38,10 @@ class LdapPersonGroup
             return [];
         }*/
 
-        //$strLdapGroupModel = static::$strLdapGroupModel;
-        //$arrLdapGroups    = $strLdapGroupModel::findAll();
+        $strLdapGroupModel = static::$strLdapGroupModel;
+        $arrLdapGroups = $strLdapGroupModel::findAll();
 
-        if (!is_array($arrLdapGroups))
-        {
+        if (!is_array($arrLdapGroups)) {
             return [];
         }
 
@@ -80,6 +51,12 @@ class LdapPersonGroup
 		}
 
         asort($arrGroups);
+
+		\System::getContainer()
+			->get('logger')
+			->info('Result '.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+					'arrGroups' => $arrGroups));
 
         return $arrGroups;
     }
@@ -95,29 +72,19 @@ class LdapPersonGroup
      */
     public static function updatePersonGroups($varValue)
     {
-	
+		\System::getContainer()
+			->get('logger')
+			->info('Invoke '.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+					'varValue' => $varValue));
  
 		if (!\Config::get('addLdapFor' . static::$strPrefix . 's')) {
 			return $varValue;
 		}
 
         $arrSelectedGroups = deserialize($varValue, true);
-		
-		$strLocalGroupModel = static::$strLocalGroupModel;
-		$objGroup          = new $strLocalGroupModel();
 
-		\System::getContainer()->get('logger')->error('yolo', [$objGroup]);
-
-		\System::getContainer()->get('logger')->info('yolo', array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL), 'obj' => $objGroup));
-
-		\System::getContainer()->get('ldap.logger')->logger->critical('!!');
-
-		dump($varValue);
-
-		//throw new \Exception('x');
-
-        if (!empty($arrSelectedGroups))
-        {
+        if (!empty($arrSelectedGroups)) {
 
 			foreach($arrSelectedGroups as $k => $v) {
 				$arrSelectedGroups[$k] = base64_decode(\Input::decodeEntities($v));
@@ -125,8 +92,6 @@ class LdapPersonGroup
 
             $strLdapGroupModel = static::$strLdapGroupModel;
             $arrGroups         = $strLdapGroupModel::findAll();
-
-			//\System::log(json_encode($arrGroups),'arrGroups','updatePersonGroups()');
 
             if (!is_array($arrGroups) || empty($arrGroups))
             {
@@ -137,17 +102,14 @@ class LdapPersonGroup
             foreach ($arrSelectedGroups as $selectedDN)
             {
 
-				//\System::log($selectedCN,'selectedCN','updatePersonGroups()');
-
 				// TODO hier wird über cn statt über dn gematched
 
                 if (in_array($selectedDN, array_keys($arrGroups)))
                 {
                     //$decodedDN = base64_decode(str_replace('&#61;', '=', substr($selectedDN,0,strlen($selectedDN)-1)));
                     
-                    if (($objGroup = $strLocalGroupModel::findByLdapGid($selectedDN)) === null)
-                    {
-                        $objGroup          = new $strLocalGroupModel();
+                    if (($objGroup = $strLocalGroupModel::findByLdapGid($selectedDN)) === null) {
+                        $objGroup = new $strLocalGroupModel();
                         $objGroup->dn = $selectedDN;
                     }
 
@@ -159,17 +121,14 @@ class LdapPersonGroup
                     		$objGroup->name   = $GLOBALS['TL_LANG']['MSC']['ldapGroupPrefix'] . $group['cn'];
                     	}
 					}
-                    
-                    //\System::log(json_encode($arrGroups), 'LdapPersonGroup::updatePersonGroup', 'debug');
 
                     $objGroup->save();
                 }
             }
-
-            $strClass = 'Refulgent\ContaoLDAPSupportBundle\Backend\Ldap' . static::$strPrefix;
-
-            $strClass::updatePersons($arrSelectedGroups);
         }
+
+		$strClass = 'Refulgent\ContaoLDAPSupport\Ldap' . static::$strPrefix;
+		$strClass::updatePersons($arrSelectedGroups);
 
         return $varValue;
     }
@@ -178,6 +137,13 @@ class LdapPersonGroup
 	 * load_callback
 	 */
     public static function loadPersonGroups($value, $container) {
+
+		\System::getContainer()
+			->get('logger')
+			->info('Invoke '.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+					'value' => $value,
+					'container' => $container));
 
 		if($value !== null) {
 
@@ -192,6 +158,13 @@ class LdapPersonGroup
 				$value = serialize($arrSelectedGroups);
 			}
 		}
+
+		\System::getContainer()
+			->get('logger')
+			->info('Result '.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+					'value' => $value));
+
 		return $value;
     }
 }

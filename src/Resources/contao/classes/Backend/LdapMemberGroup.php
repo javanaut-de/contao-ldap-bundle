@@ -7,6 +7,6 @@ class LdapMemberGroup extends LdapPersonGroup
     protected static $strPrefix          = 'Member';
     protected static $strLocalModel      = '\MemberModel';
     protected static $strLocalGroupModel = '\MemberGroupModel';
-    protected static $strLdapModel       = 'Refulgent\ContaoLDAPSupport\Backend\LdapMemberModel';
-    protected static $strLdapGroupModel  = 'Refulgent\ContaoLDAPSupport\Backend\LdapMemberGroupModel';
+    protected static $strLdapModel       = 'Refulgent\ContaoLDAPSupport\LdapMemberModel';
+    protected static $strLdapGroupModel  = 'Refulgent\ContaoLDAPSupport\LdapMemberGroupModel';
 }

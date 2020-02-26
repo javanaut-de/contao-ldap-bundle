@@ -2,6 +2,8 @@
 
 namespace Refulgent\ContaoLDAPSupport;
 
+use Contao\CoreBundle\Monolog\ContaoContext;
+
 abstract class LdapPersonGroupModel extends \Model
 {
 
@@ -14,6 +16,12 @@ abstract class LdapPersonGroupModel extends \Model
 
     public static function findAll(array $arrOptions = [])
     { 
+		\System::getContainer()
+			->get('logger')
+			->info('Invoke '.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+					'arrOptions' => $arrOptions));
+
         $objConnection = Ldap::getConnection(strtolower(static::$strPrefix));
 
         if ($objConnection)
@@ -27,7 +35,7 @@ abstract class LdapPersonGroupModel extends \Model
 			 */
             $strQuery = ldap_search(
                 $objConnection,
-                \Config::get('ldap'.static::$strPrefix.'GroupBase'), // 'ldap' . static::$strPrefix . 'Base'
+                \Config::get('ldap'.static::$strPrefix.'GroupBase'),
                 "(objectClass=*)",
                 static::$arrRequiredAttributes
             );
@@ -41,6 +49,7 @@ abstract class LdapPersonGroupModel extends \Model
             {
                 return false;
             }
+
             $arrGroups = [];
             foreach ($arrResult as $strKey => $arrGroup)
             {
@@ -67,6 +76,12 @@ abstract class LdapPersonGroupModel extends \Model
 				}
             }
 
+			\System::getContainer()
+				->get('logger')
+				->info('Result '.__FUNCTION__,
+					array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+						'arrGroups' => $arrGroups));
+
             return $arrGroups;
         }
         else
@@ -83,6 +98,12 @@ abstract class LdapPersonGroupModel extends \Model
 	 */
     public static function getLocalLdapGroupIds($arrRemoteLdapGroupIds)
     {
+		\System::getContainer()
+			->get('logger')
+			->info('Invoke '.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+					'arrRemoteLdapGroupIds' => $arrRemoteLdapGroupIds));
+
         $arrResult = [];
         foreach ($arrRemoteLdapGroupIds as $currentGid)
         {
@@ -94,6 +115,13 @@ abstract class LdapPersonGroupModel extends \Model
                 $arrResult[] = $objGroup->id;
             }
         }
+
+		\System::getContainer()
+			->get('logger')
+			->info('Result '.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+					'arrResult' => $arrResult));
+
         return $arrResult;
     }
 }
