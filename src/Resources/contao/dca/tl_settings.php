@@ -213,11 +213,11 @@ foreach ($arrFields as $strField => $arrData) {
 }
 
 $arrDca['fields']['ldapMemberGroups']['options_callback'] = ['Refulgent\ContaoLDAPSupport\LdapMemberGroup', 'getLdapPersonGroupsAsOptions'];
-$arrDca['fields']['ldapMemberGroups']['save_callback']    = [['Refulgent\ContaoLDAPSupport\LdapMemberGroup', 'updatePersonGroups']];
+$arrDca['fields']['ldapMemberGroups']['save_callback']    = [['Refulgent\ContaoLDAPSupport\LdapMemberGroup', 'updateLocalGroups']];
 $arrDca['fields']['ldapMemberGroups']['load_callback']    = [['Refulgent\ContaoLDAPSupport\LdapMemberGroup', 'loadPersonGroups']];
 
 $arrDca['fields']['ldapUserGroups']['options_callback'] = ['Refulgent\ContaoLDAPSupport\LdapUserGroup', 'getLdapPersonGroupsAsOptions'];
-$arrDca['fields']['ldapUserGroups']['save_callback']    = [['Refulgent\ContaoLDAPSupport\LdapUserGroup', 'updatePersonGroups']];
+$arrDca['fields']['ldapUserGroups']['save_callback']    = [['Refulgent\ContaoLDAPSupport\LdapUserGroup', 'updateLocalGroups']];
 $arrDca['fields']['ldapUserGroups']['load_callback']    = [['Refulgent\ContaoLDAPSupport\LdapUserGroup', 'loadPersonGroups']];
 
 

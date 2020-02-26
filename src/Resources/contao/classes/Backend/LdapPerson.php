@@ -346,41 +346,4 @@ class LdapPerson
             $objPerson->{$arrMapping['field']} = $arrMapping['defaultValue'];
         }
     }
-
-    /**
-     * Adds active remote ldap group's local representation
-	 * keeping the non ldap contao groups
-     *
-     * @param       $objPerson
-     * @param       $arrSelectedGroups
-     */
-    public static function addGroups($objPerson, $arrSelectedGroups)
-    {
-		\System::getContainer()
-			->get('logger')
-			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
-				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
-					'objPerson' => $objPerson,
-					'arrSelectedGroups' => $arrSelectedGroups));
-
-        $strLocalGroupClass = static::$strLocalGroupModel;
-        $strLdapGroupClass  = static::$strLdapGroupModel;
-        $strLdapModelClass  = static::$strLdapModel;
-
-        $arrGroups           = deserialize($objPerson->groups, true);
-        $objLocalLdapGroups  = $strLocalGroupClass::findBy(["(dn IS NOT NULL)"], null);
-        $arrRemoteLdapGroups = $strLdapModelClass::getRemoteLdapGroupDNsByPersonDN($objPerson->dn);
-
-        if ($objLocalLdapGroups !== null)
-        {
-            $arrLocalLdapPersonGroups = $objLocalLdapGroups->fetchEach('dn');
-
-            $objPerson->groups = serialize(
-                array_merge(
-                    array_diff($arrGroups, $arrLocalLdapPersonGroups), // non ldap local contao groups
-                    $strLdapGroupClass::getLocalLdapGroupIds(array_intersect($arrRemoteLdapGroups, $arrSelectedGroups))
-                )
-            );
-        }
-    }
 }

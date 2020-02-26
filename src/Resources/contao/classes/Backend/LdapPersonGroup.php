@@ -57,7 +57,7 @@ class LdapPersonGroup
     }
 
     /**
-     * Add local member groups as representation of remote ldap groups
+     * Add/update local member groups as representation of remote ldap groups
      *
 	 * save_callback
 	 *
@@ -65,7 +65,7 @@ class LdapPersonGroup
      *
      * @return mixed
      */
-    public static function updatePersonGroups($varValue)
+    public static function updateLocalGroups($varValue)
     {
 		\System::getContainer()
 			->get('logger')
@@ -77,52 +77,65 @@ class LdapPersonGroup
 			return $varValue;
 		}
 
-        $arrSelectedGroups = deserialize($varValue, true);
+		// array of strings with dn (after decoding)
+        $arrSelectedLdapGroups = deserialize($varValue, true);
 
-        if (!empty($arrSelectedGroups)) {
+        if (!empty($arrSelectedLdapGroups)) {
 
-			foreach($arrSelectedGroups as $k => $v) {
-				$arrSelectedGroups[$k] = base64_decode(\Input::decodeEntities($v));
+			foreach($arrSelectedLdapGroups as $k => $v) {
+				$arrSelectedLdapGroups[$k] = base64_decode(\Input::decodeEntities($v));
 			}
+		}
 
-            $strLdapGroupModel = static::$strLdapGroupModel;
-            $arrGroups         = $strLdapGroupModel::findAll();
+		$strLdapGroupModel = static::$strLdapGroupModel;
+		// array of array(cn,dn,persons[])
+		$arrLdapGroups     = $strLdapGroupModel::findAll();
 
-            if (!is_array($arrGroups) || empty($arrGroups))
-            {
-                return $varValue;
-            }
+		// skip if no ldap grps present
+		if (!is_array($arrLdapGroups) || empty($arrLdapGroups)) {
+			return $varValue;
+		}
 
-            $strLocalGroupModel = static::$strLocalGroupModel;
-            foreach ($arrSelectedGroups as $selectedDN)
-            {
+		$strLocalGroupModel = static::$strLocalGroupModel;
 
-				// TODO hier wird über cn statt über dn gematched
+		foreach ($arrLdapGroups as $ldapGroup) {
 
-                if (in_array($selectedDN, array_keys($arrGroups))) {
+			$ldapDN = $ldapGroup->dn;
+
+			$objGroup = $strLocalGroupModel::findByDn($ldapDN);
+
+			if (in_array($ldapDN, $arrSelectedLdapGroups)) {
             
-                    if (($objGroup = $strLocalGroupModel::findByDn($selectedDN)) === null) {
-                        $objGroup = new $strLocalGroupModel();
-                        $objGroup->dn = $selectedDN;
+				if ($objGroup === null) {
+					$objGroup = new $strLocalGroupModel();
+					$objGroup->dn = $selectedLdapDN;
+				}
+
+				$objGroup->tstamp = time();
+
+				foreach($arrLdapGroups as $group) {
+					if($group['dn'] == $selectedLdapDN) {
+                    	$objGroup->name   = $GLOBALS['TL_LANG']['MSC']['ldapGroupPrefix'] . $group['cn'];
                     }
+				}
 
-                    $objGroup->tstamp = time();
+				$objGroup->disable = false;
 
-					foreach($arrGroups as $group) {
-						if($group['dn'] == $selectedDN) {
-                    		$objGroup->name   = $GLOBALS['TL_LANG']['MSC']['ldapGroupPrefix'] . $group['cn'];
-                    	}
-					}
+			} else {
+				if ($objGroup !== null) {
+					$objGroup->disable = true;
+				}
+			}
+			
+			if ($objGroup !== null) {
+				$objGroup->save();
+			}
+		}
 
-                    $objGroup->save();
-                }
-            }
-        }
+		//$strClass = 'Refulgent\ContaoLDAPSupport\Ldap' . static::$strPrefix;
+		//$strClass::updatePersons($arrSelectedGroups);
 
-		$strClass = 'Refulgent\ContaoLDAPSupport\Ldap' . static::$strPrefix;
-		$strClass::updatePersons($arrSelectedGroups);
-
-        return $varValue;
+		return $varValue;
     }
 
 	/*
@@ -158,5 +171,39 @@ class LdapPersonGroup
 					'value' => $value));
 
 		return $value;
+    }
+
+	/**
+     * Adds active remote ldap group's local representation
+	 * keeping the non ldap contao groups
+     *
+     * @param       $objPerson
+     * @param       $arrSelectedGroups
+     */
+    public static function importGroups($arrSelectedGroups)
+    {
+		\System::getContainer()
+			->get('logger')
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+					'objPerson' => $objPerson,
+					'arrSelectedGroups' => $arrSelectedGroups));
+
+        $strLocalGroupClass = static::$strLocalGroupModel;
+        $strLdapGroupClass  = static::$strLdapGroupModel;
+
+        $objLocalLdapGroups  = $strLocalGroupClass::findBy(["(dn IS NOT NULL)"], null);
+
+        if ($objLocalLdapGroups !== null)
+        {
+            $arrLocalLdapPersonGroups = $objLocalLdapGroups->fetchEach('dn');
+
+            $objPerson->groups = serialize(
+                array_merge(
+                    array_diff($arrGroups, $arrLocalLdapPersonGroups), // non ldap local contao groups
+                    $strLdapGroupClass::getLocalLdapGroupIds(array_intersect($arrRemoteLdapGroups, $arrSelectedGroups))
+                )
+            );
+        }
     }
 }
