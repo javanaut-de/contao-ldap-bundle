@@ -77,7 +77,7 @@ class LdapPersonGroup
 			return $varValue;
 		}
 
-		// array of strings with dn (after decoding)
+		// num array of strings with encoded dn
         $arrSelectedLdapGroups = deserialize($varValue, true);
 
         if (!empty($arrSelectedLdapGroups)) {
@@ -100,9 +100,18 @@ class LdapPersonGroup
 
 		foreach ($arrLdapGroups as $ldapGroup) {
 
-			$ldapDN = $ldapGroup->dn;
+			$ldapDN = $ldapGroup['dn'];
 
-			$objGroup = $strLocalGroupModel::findByDn($ldapDN);
+			// Col mit 1 Objekt aus lokaler Gruppe
+			$collectionGroup = $strLocalGroupModel::findByDn($ldapDN);
+
+			// TODO optimieren
+			$objGroup = null;
+
+			if($collectionGroup !== null) {
+				// Objekt aus lokaler Gruppe
+				$objGroup = $collectionGroup->current();
+			}
 
 			if (in_array($ldapDN, $arrSelectedLdapGroups)) {
             
