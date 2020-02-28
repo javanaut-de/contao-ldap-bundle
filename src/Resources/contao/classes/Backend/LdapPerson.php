@@ -74,8 +74,6 @@ class LdapPerson
 	// TODO use or remove
 	public static function updatePeople($varValue) {
 
-            $usernameFieldname = \Config::get('ldapUserLdapUsernameField');
-
 			if($varValue == false) {
                 static::disableLdapPersons('User');
                 static::disableLdapPersons('Member');
