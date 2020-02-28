@@ -23,9 +23,10 @@ class LdapPersonGroup
 	 * um das Auswahlfeld für die LDAP-Felder zu
 	 * generieren.
 	 *
-	 * options_callback
+	 * options_callback: Invoked when tl_settings
+	 * backend form is created.
 	 */
-    public static function getLdapPersonGroupsAsOptions()
+    public static function getLdapGroupsAsOptions()
     {
 		\System::getContainer()
 			->get('logger')
@@ -40,8 +41,10 @@ class LdapPersonGroup
 		}
 
 		$arrGroups = [];
+
         foreach ($arrLdapGroups as $key => $arrGroup) {
 			$encodedDN = \Input::encodeSpecialChars(base64_encode($arrGroup['dn']));
+			// asoc array dn->cn von ldap gruppen
 			$arrGroups[$encodedDN] = $arrGroup['cn'];
 		}
 
@@ -90,6 +93,7 @@ class LdapPersonGroup
 		}
 
 		// num array of strings with encoded dn
+		// of currently selected ldap groups
         $arrSelectedLdapGroups = deserialize($varValue, true);
 
         if (!empty($arrSelectedLdapGroups)) {
@@ -104,8 +108,6 @@ class LdapPersonGroup
 		$strLdapGroupModel = static::$strLdapGroupModel;
 		// array of array(cn,dn,persons[])
 		$arrLdapGroups     = $strLdapGroupModel::findAll();
-
-dump($arrLdapGroups);
 
 		// skip if no ldap grps present
 		if (!is_array($arrLdapGroups) || empty($arrLdapGroups)) {
@@ -156,8 +158,8 @@ dump($arrLdapGroups);
 			}
 		}
 
-		//$strClass = 'Refulgent\ContaoLDAPSupport\Ldap' . static::$strPrefix;
-		//$strClass::updatePersons($arrSelectedGroups);
+		$strClass = 'Refulgent\ContaoLDAPSupport\Ldap' . static::$strPrefix;
+		$strClass::updatePersons($arrSelectedLdapGroups);
 
 		\System::getContainer()
 			->get('logger')

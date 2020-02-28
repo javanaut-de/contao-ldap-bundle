@@ -192,6 +192,7 @@ $arrDca['fields'] = array_merge(
             'exclude'   => true,
             'inputType' => 'checkbox',
             'eval'      => ['submitOnChange' => true],
+			'save_callback' => [['Refulgent\ContaoLDAPSupport\LdapPerson', 'updatePeople']]
         ],
     ]
 );
@@ -212,11 +213,11 @@ foreach ($arrFields as $strField => $arrData) {
     $arrDca['subpalettes']['addLdapForUsers'] .= 'ldapUser' . ucfirst($strField) . ',';
 }
 
-$arrDca['fields']['ldapMemberGroups']['options_callback'] = ['Refulgent\ContaoLDAPSupport\LdapMemberGroup', 'getLdapPersonGroupsAsOptions'];
+$arrDca['fields']['ldapMemberGroups']['options_callback'] = ['Refulgent\ContaoLDAPSupport\LdapMemberGroup', 'getLdapGroupsAsOptions'];
 $arrDca['fields']['ldapMemberGroups']['save_callback']    = [['Refulgent\ContaoLDAPSupport\LdapMemberGroup', 'updateLocalGroups']];
 $arrDca['fields']['ldapMemberGroups']['load_callback']    = [['Refulgent\ContaoLDAPSupport\LdapMemberGroup', 'loadPersonGroups']];
 
-$arrDca['fields']['ldapUserGroups']['options_callback'] = ['Refulgent\ContaoLDAPSupport\LdapUserGroup', 'getLdapPersonGroupsAsOptions'];
+$arrDca['fields']['ldapUserGroups']['options_callback'] = ['Refulgent\ContaoLDAPSupport\LdapUserGroup', 'getLdapGroupsAsOptions'];
 $arrDca['fields']['ldapUserGroups']['save_callback']    = [['Refulgent\ContaoLDAPSupport\LdapUserGroup', 'updateLocalGroups']];
 $arrDca['fields']['ldapUserGroups']['load_callback']    = [['Refulgent\ContaoLDAPSupport\LdapUserGroup', 'loadPersonGroups']];
 

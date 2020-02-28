@@ -17,6 +17,8 @@ abstract class LdapPersonModel extends \Model
 	 * Die Methode holt alle Personen aus einem
 	 * LDAP-Benutzerverzeichnis und gibt diese
 	 * als Array zurück.
+	 *
+	 * @return [count,0:[uid:[0],dn]] with ldap users
 	 */
     public static function findAll(array $arrOptions = [])
     {

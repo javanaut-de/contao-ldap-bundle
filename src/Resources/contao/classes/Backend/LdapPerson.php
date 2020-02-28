@@ -15,7 +15,8 @@ class LdapPerson
     protected static $strLocalGroupModel = '';
 
     /**
-     * importUser hook
+     * importUser hook: Invoked when unknown
+	 * user tried to login.
      */
     public function importPersonFromLdap($strUsername, $strPassword, $strTable)
     {
@@ -33,15 +34,18 @@ class LdapPerson
             static::createOrUpdatePerson(null, $strLdapModelClass::findByUsername($strUsername), $strUsername);
 
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
 
     /**
-     * check credentials hook -> ldap password != contao password
+     * checkCredentials hook: Invoked when user
+	 * tried to login with invalid password.
+	 *
+	 * -> ldap password != contao password
+	 *
+	 * @return true triggers valid access in contao
      */
     public function authenticateAgainstLdap($strUsername, $strPassword, $objPerson)
     {
@@ -67,6 +71,76 @@ class LdapPerson
         }
     }
 
+	// TODO use or remove
+	public static function updatePeople($varValue) {
+
+            $usernameFieldname = \Config::get('ldapUserLdapUsernameField');
+
+			if($varValue == false) {
+                static::disableLdapPersons('User');
+                static::disableLdapPersons('Member');
+                static::disableLdapGroups('User');
+                static::disableLdapGroups('Member');
+            }
+            
+		return $varValue;
+	}
+
+	public static function disableLdapPersons($strPrefix) {
+
+        $usernameFieldname = \Config::get('ldap' . $strPrefix . 'LdapUsernameField');
+        $arrSkipUsernames = trimsplit(',', \Config::get('ldap' . $strPrefix . 'SkipLdapUsernames'));
+        $strModelClass = '\\'.$strPrefix.'Model';
+        $strLdapModelClass = 'Refulgent\\ContaoLDAPSupport\\Ldap'.$strPrefix.'Model';
+
+		$arrLdapPersons = $strLdapModelClass::findAll(); 
+
+        if(!empty($arrLdapPersons)) {
+            foreach ($arrLdapPersons as $key => $ldapPerson)
+            {
+                if ($key == 'count' ||
+                        $ldapPerson[$usernameFieldname] === null ||
+                        $ldapPerson[$usernameFieldname]['count'] < 1) {
+                    continue;
+                }
+                
+                $strUsername = $ldapPerson[$usernameFieldname][0];
+
+                $objPerson = $strModelClass::findBy('username', $strUsername);
+                $objPerson->disable = true;
+                $objPerson->save();
+            }
+        }
+	}
+
+	public static function disableLdapGroups($strPrefix) {
+    
+        // TODO Statische Klasse mit Klassennamen?
+        $strLdapGroupClass  = 'Refulgent\\ContaoLDAPSupport\\Ldap'.$strPrefix.'GroupModel';
+        $strGroupModelClass = '\\'.$strPrefix.'GroupModel';
+
+        $arrLdapGroups  = $strLdapGroupClass::findAll();
+
+        if(!empty($arrLdapGroups)) {
+            foreach ($arrLdapGroups as $key => $ldapGroup) {
+
+                dump($ldapGroup);
+
+                $objGroup = $strGroupModelClass::findByDn($ldapGroup['dn'])->current();
+
+                $objGroup->disable = true;
+                $objGroup->save();
+            }
+        }
+	}
+
+	/*
+	 * Checks if passed username exists and
+	 * if username / password combination
+	 * currently is valid in LDAP directory.
+	 *
+	 * @return true -> valid
+	 */
     public static function authenticateLdapPerson($strUsername, $strPassword)
     {
 		\System::getContainer()
@@ -77,8 +151,10 @@ class LdapPerson
 					'strPassword' => $strPassword));
 
         $strLdapModelClass = static::$strLdapModel;
+		// asoc array (uid, dn) with user data
         $arrPerson         = $strLdapModelClass::findByUsername($strUsername);
-        
+   
+		// TODO simplify Ifs
         if(!$arrPerson) {
             die('Person not found.');
         }
@@ -101,6 +177,9 @@ class LdapPerson
         }
     }
 
+	/*
+	 * @param arrSelectedGroups array of strings with dn of currently selected ldap groups
+	 */
     public static function updatePersons($arrSelectedGroups)
     {
 		\System::getContainer()
@@ -174,6 +253,9 @@ class LdapPerson
         }
     }
 
+	/*
+	 * @param arrSelectedGroups array of strings with dn of currently selected ldap groups
+	 */
     public static function createOrUpdatePerson($objPerson, $arrPerson, $strUsername, $arrSelectedGroups = null)
     {
 		\System::getContainer()
@@ -217,7 +299,7 @@ class LdapPerson
                 $objPerson->backendTheme = 'flexible';
             }
 
-            static::addGroups($objPerson, $arrSelectedGroups);
+            //static::addGroups($objPerson, $arrSelectedGroups);
             static::applyFieldMapping($objPerson, $arrPerson);
             static::applyDefaultValues($objPerson);
 
@@ -228,10 +310,9 @@ class LdapPerson
                     $callback[0]->{$callback[1]}($objPerson, $arrSelectedGroups);
                 }
             }
-        }
-        else
-        {
-            static::addGroups($objPerson, $arrSelectedGroups);
+        } else {
+
+            //static::addGroups($objPerson, $arrSelectedGroups);
             static::applyFieldMapping($objPerson, $arrPerson);
             static::applyDefaultValues($objPerson);
 
@@ -274,8 +355,7 @@ class LdapPerson
             // special case email -> only one-to-one mapping possible
             if ($arrMapping['contaoField'] == 'email' && $strDomain)
             {
-                if ($arrRemoteLdapPerson[$arrMapping['ldapField']]['count'] < 1)
-                {
+                if ($arrRemoteLdapPerson[$arrMapping['ldapField']]['count'] < 1) {
                     continue;
                 }
 
