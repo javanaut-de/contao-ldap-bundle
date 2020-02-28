@@ -124,8 +124,6 @@ class LdapPerson
         if(!empty($arrLdapGroups)) {
             foreach ($arrLdapGroups as $key => $ldapGroup) {
 
-                dump($ldapGroup);
-
                 $objGroup = $strGroupModelClass::findByDn($ldapGroup['dn'])->current();
 
                 $objGroup->disable = true;
