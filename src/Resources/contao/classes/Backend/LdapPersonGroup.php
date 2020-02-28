@@ -97,11 +97,15 @@ class LdapPersonGroup
 			foreach($arrSelectedLdapGroups as $k => $v) {
 				$arrSelectedLdapGroups[$k] = base64_decode(\Input::decodeEntities($v));
 			}
+
+			$varValue = serialize($arrSelectedLdapGroups);
 		}
 
 		$strLdapGroupModel = static::$strLdapGroupModel;
 		// array of array(cn,dn,persons[])
 		$arrLdapGroups     = $strLdapGroupModel::findAll();
+
+dump($arrLdapGroups);
 
 		// skip if no ldap grps present
 		if (!is_array($arrLdapGroups) || empty($arrLdapGroups)) {
@@ -128,13 +132,13 @@ class LdapPersonGroup
             
 				if ($objGroup === null) {
 					$objGroup = new $strLocalGroupModel();
-					$objGroup->dn = $selectedLdapDN;
+					$objGroup->dn = $ldapDN;
 				}
 
 				$objGroup->tstamp = time();
 
 				foreach($arrLdapGroups as $group) {
-					if($group['dn'] == $selectedLdapDN) {
+					if($group['dn'] == $ldapDN) {
                     	$objGroup->name   = $GLOBALS['TL_LANG']['MSC']['ldapGroupPrefix'] . $group['cn'];
                     }
 				}
@@ -155,6 +159,12 @@ class LdapPersonGroup
 		//$strClass = 'Refulgent\ContaoLDAPSupport\Ldap' . static::$strPrefix;
 		//$strClass::updatePersons($arrSelectedGroups);
 
+		\System::getContainer()
+			->get('logger')
+			->info('Result '.__CLASS__.'::'.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+					'varValue' => $varValue));
+ 
 		return $varValue;
     }
 
@@ -172,7 +182,7 @@ class LdapPersonGroup
 
 		if($value !== null) {
 
-        $arrSelectedGroups = deserialize($value);
+        	$arrSelectedGroups = deserialize($value);
 
 			if($arrSelectedGroups !== null && !empty($arrSelectedGroups)) {
 
