@@ -56,10 +56,22 @@ class LdapPersonGroup
         return $arrGroups;
     }
 
-    /**
-     * Add/update local member groups as representation of remote ldap groups
+    /*
+     * Adds/updates local member groups
+	 * as representation of remote ldap
+	 * groups.
      *
-	 * save_callback
+	 * Local groups of which a pendant
+	 * in LDAP Groups doesn't exist
+	 " or are not to be imported anymore
+	 * are disabled.
+	 * 
+	 * TODO Verschachtelte Ifs optimieren
+	 *
+	 * save_callback: Invoked when tl_settings
+	 * in backend was submitted and selection
+	 * of ldap groups to be imported
+	 * is stored.
 	 *
      * @param $varValue
      *
@@ -105,7 +117,6 @@ class LdapPersonGroup
 			// Col mit 1 Objekt aus lokaler Gruppe
 			$collectionGroup = $strLocalGroupModel::findByDn($ldapDN);
 
-			// TODO optimieren
 			$objGroup = null;
 
 			if($collectionGroup !== null) {
