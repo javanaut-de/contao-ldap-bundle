@@ -111,6 +111,9 @@ class LdapPerson
         }
 	}
 
+	/*
+	 * TODO diese Methode ins model? disableAll()
+	 */
 	public static function disableLdapGroups($strPrefix) {
     
         // TODO Statische Klasse mit Klassennamen?
@@ -159,6 +162,8 @@ class LdapPerson
         {
         	/*
 			 * ldap_bind(<link>,<dn/rdn(uid)>,<password>)
+			 *
+			 * TODO ldap_close notwendig? Nutzen?
 			 */
             if (!ldap_bind(Ldap::getConnection(strtolower(static::$strPrefix)), $arrPerson['dn'], $strPassword))
             {
@@ -250,6 +255,9 @@ class LdapPerson
     }
 
 	/*
+	 * Aktualisierung der lokalen Gruppen muss
+	 * unter anderem nach hier passieren.
+	 *
 	 * @param arrSelectedGroups array of strings with dn of currently selected ldap groups
 	 */
     public static function createOrUpdatePerson($objPerson, $arrPerson, $strUsername, $arrSelectedGroups = null)
