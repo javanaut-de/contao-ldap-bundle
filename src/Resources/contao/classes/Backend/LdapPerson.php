@@ -87,7 +87,7 @@ class LdapPerson
 	public static function disableLdapPersons($strPrefix) {
 
         $usernameFieldname = \Config::get('ldap' . $strPrefix . 'LdapUsernameField');
-        $arrSkipUsernames = trimsplit(',', \Config::get('ldap' . $strPrefix . 'SkipLdapUsernames'));
+        $arrSkipUsernames = \StringUtil::trimsplit(',', \Config::get('ldap' . $strPrefix . 'SkipLdapUsernames'));
         $strModelClass = '\\'.$strPrefix.'Model';
         $strLdapModelClass = 'Refulgent\\ContaoLDAPSupport\\Ldap'.$strPrefix.'Model';
 
@@ -153,29 +153,24 @@ class LdapPerson
 		// asoc array (uid, dn) with user data
         $arrPerson         = $strLdapModelClass::findByUsername($strUsername);
    
-		// TODO simplify Ifs
         if(!$arrPerson) {
             die('Person not found.');
         }
-        
-        if ($arrPerson)
-        {
-        	/*
-			 * ldap_bind(<link>,<dn/rdn(uid)>,<password>)
-			 *
-			 * TODO ldap_close notwendig? Nutzen?
-			 */
-            if (!ldap_bind(Ldap::getConnection(strtolower(static::$strPrefix)), $arrPerson['dn'], $strPassword))
-            {
-                return false;
-            }
-
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+  
+		$success = false;
+      
+        /*
+		 * ldap_bind(<link>,<dn/rdn(uid)>,<password>)
+		 *
+		 * TODO ldap_close notwendig? Nutzen?
+		 */
+		try {
+			$success = ldap_bind(Ldap::getConnection(strtolower(static::$strPrefix)), $arrPerson['dn'], $strPassword);
+		} catch (\ErrorException $ee) {
+			return false;
+		}
+           
+		return $success;
     }
 
 	/*
@@ -198,7 +193,7 @@ class LdapPerson
 
         $arrFoundDNs = [];
 
-        $arrSkipUsernames = trimsplit(',', \Config::get('ldap' . static::$strPrefix . 'SkipLdapUsernames'));
+        $arrSkipUsernames = \StringUtil::trimsplit(',', \Config::get('ldap' . static::$strPrefix . 'SkipLdapUsernames'));
 
         $strLocalModelClass = static::$strLocalModel;
 
@@ -258,29 +253,36 @@ class LdapPerson
 	 * Aktualisierung der lokalen Gruppen muss
 	 * unter anderem nach hier passieren.
 	 *
+	 * @param objPerson Contao dataset of person
+	 * @param arrPerson LDAP dataset of person 0:[count,0,dn,uid:[count,0]]
+	 * @param strUsername // TODO useless?
 	 * @param arrSelectedGroups array of strings with dn of currently selected ldap groups
 	 */
-    public static function createOrUpdatePerson($objPerson, $arrPerson, $strUsername, $arrSelectedGroups = null)
+    public static function createOrUpdatePerson($objPerson, $arrLdapPerson, $strUsername, $arrSelectedGroups = null)
     {
 		\System::getContainer()
 			->get('logger')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'objPerson' => $objPerson,
-					'arrPerson' => $arrPerson,
+					'arrLdapPerson' => $arrLdapPerson,
 					'strUsername' => $strUsername,
 					'arrSelectedGroups' => $arrSelectedGroups));
 
-        $arrSelectedGroups  = $arrSelectedGroups ?: deserialize(\Config::get('ldap' . static::$strPrefix . 'Groups'), true);
-        $strLocalModelClass = static::$strLocalModel;
+		// if no selected groups are passed all
+		// ldap groups are used that are stored
+        // in tl_settings
+        $arrSelectedGroups  = $arrSelectedGroups ?: \StringUtil::deserialize(\Config::get('ldap' . static::$strPrefix . 'Groups'), true);
+
+		$strLocalModelClass = static::$strLocalModel;
 
         // create the person initially
         if ($objPerson === null)
         {
-            $arrSkipUsernames = trimsplit(',', \Config::get('ldap' . static::$strPrefix . 'SkipLdapUsernames'));
-            $strUN = $arrPerson[\Config::get('ldap' . static::$strPrefix . 'LdapUsernameField')][0];
+            $arrSkipUsernames = \StringUtil::trimsplit(',', \Config::get('ldap' . static::$strPrefix . 'SkipLdapUsernames'));
+            $strUN = $arrLdapPerson[\Config::get('ldap' . static::$strPrefix . 'LdapUsernameField')][0];
 
-            if (!is_array($arrPerson) || in_array($strUN, $arrSkipUsernames)) {
+            if (!is_array($arrLdapPerson) || in_array($strUN, $arrSkipUsernames)) {
                 return false;
             }
 
@@ -288,14 +290,10 @@ class LdapPerson
 
             $objPerson->tstamp   = $objPerson->dateAdded = time();
             $objPerson->login    = true;
-			$objPerson->dn       = $arrPerson['dn'];
+			$objPerson->dn       = $arrLdapPerson['dn'];
             $objPerson->username = $strUsername;
 
-            // store randomized password, so contao will always trigger the checkCredentials hook
-            $objPerson->password = md5(time() . $strUsername);
-
-            if (TL_MODE == 'BE')
-            {
+            if (TL_MODE == 'BE') {
                 $objPerson->showHelp = true;
                 $objPerson->useRTE = true;
                 $objPerson->useCE = true;
@@ -303,34 +301,36 @@ class LdapPerson
                 $objPerson->backendTheme = 'flexible';
             }
 
-            //static::addGroups($objPerson, $arrSelectedGroups);
-            static::applyFieldMapping($objPerson, $arrPerson);
-            static::applyDefaultValues($objPerson);
+  //          if (isset($GLOBALS['TL_HOOKS']['ldapAddPerson']) && is_array($GLOBALS['TL_HOOKS']['ldapAddPerson']))
+       //     {
+//                foreach ($GLOBALS['TL_HOOKS']['ldapAddPerson'] as $callback)
+    //            {
+         //           $callback[0]->{$callback[1]}($objPerson, $arrSelectedGroups);
+    //            }
+   //         }
 
-            if (isset($GLOBALS['TL_HOOKS']['ldapAddPerson']) && is_array($GLOBALS['TL_HOOKS']['ldapAddPerson']))
-            {
-                foreach ($GLOBALS['TL_HOOKS']['ldapAddPerson'] as $callback)
-                {
-                    $callback[0]->{$callback[1]}($objPerson, $arrSelectedGroups);
-                }
-            }
-        } else {
+        } //else { // update person
+          
+            //if (isset($GLOBALS['TL_HOOKS']['ldapUpdatePerson']) && is_array($GLOBALS['TL_HOOKS']['ldapUpdatePerson']))
+          //  {
+               // foreach ($GLOBALS['TL_HOOKS']['ldapUpdatePerson'] as $callback)
+           //     {
+                //    $callback[0]->{$callback[1]}($objPerson, $arrSelectedGroups);
+            //    }
+       //     }
+   //     }
 
-            //static::addGroups($objPerson, $arrSelectedGroups);
-            static::applyFieldMapping($objPerson, $arrPerson);
-            static::applyDefaultValues($objPerson);
+		static::updateAssignedGroups($objPerson, $arrSelectedGroups);
+		static::applyFieldMapping($objPerson, $arrLdapPerson);
+		static::applyDefaultValues($objPerson);
 
-            // store randomized password, so contao will always trigger the checkCredentials hook
-            $objPerson->password = md5(time() . $strUsername);
-
-            if (isset($GLOBALS['TL_HOOKS']['ldapUpdatePerson']) && is_array($GLOBALS['TL_HOOKS']['ldapUpdatePerson']))
-            {
-                foreach ($GLOBALS['TL_HOOKS']['ldapUpdatePerson'] as $callback)
-                {
-                    $callback[0]->{$callback[1]}($objPerson, $arrSelectedGroups);
-                }
-            }
-        }
+		/*
+		 * store randomized password, so contao
+		 * will always trigger the checkCredentials hook
+		 *
+		 * TODO fix serious security issue
+		 */
+		$objPerson->password = md5(time() . $strUsername);
 
         $objPerson->save();
 
@@ -425,9 +425,106 @@ class LdapPerson
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'objPerson' => $objPerson));
 
-        foreach (deserialize(\Config::get('ldap' . static::$strPrefix . 'DefaultPersonValues'), true) as $arrMapping)
+        foreach (\StringUtil::deserialize(\Config::get('ldap' . static::$strPrefix . 'DefaultPersonValues'), true) as $arrMapping)
         {
             $objPerson->{$arrMapping['field']} = $arrMapping['defaultValue'];
         }
+    }
+
+	/*
+     * Updates groups assigned to local person
+	 * that were imported from ldap directory.
+	 * Only Groups that exist in passed array
+	 * will be added, others are removed.
+     *
+     * @param       $objPerson
+     * @param       $arrSelectedGroups
+     */
+    public static function updateAssignedGroups($objPerson, $arrSelectedLdapGroups) {
+
+		\System::getContainer()
+			->get('logger')
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+					'objPerson' => $objPerson,
+					'arrSelectedGroups' => $arrSelectedLdapGroups));
+
+//dump($objPerson);
+//dump($arrSelectedLdapGroups);
+
+        // Update local groups
+        // TODO work out properly
+        //\Refulgent\ContaoLDAPSupport\LdapUserGroup::updateLocalGroups('N;', true); 
+        //\Refulgent\ContaoLDAPSupport\LdapMemberGroup::updateLocalGroups('N;', true);
+
+        $strLocalGroupClass = static::$strLocalGroupModel;
+		$collectionContaoGroups = $strLocalGroupClass::findAll();
+
+//dump($collectionContaoGroups);
+
+        // Contao, Local
+        //$arrContaoGroupIds = [];
+        $arrLocalGroupIds = [];
+        if($collectionContaoGroups !== null) {
+		    while ($collectionContaoGroups->next()) {
+                //$arrContaoGroupIds[] = $collectionContaoGroups->id;
+                if($collectionContaoGroups->dn === null) {
+                    $arrLocalGroupIds[] = $collectionContaoGroups->id;
+                }
+            }
+        }
+        
+//dump($arrContaoGroupIds);
+//dump($arrLocalGroupIds);
+
+		// Assigned
+		$arrAssignedGroupIds = \StringUtil::deserialize($objPerson->groups[0]) ?: []; // TODO Why is array groups[0] ?
+
+dump($arrAssignedGroupIds);
+
+		// Remote Ldap
+//		$strLdapGroupClass = static::$strLdapGroupModel;
+		// Array containing ldap groups
+		// 0:[count,0,dn,uid:[count,0]]
+//		$arrRemoteLdapGroupIds =
+//			$strLdapGroupClass::getLocalLdapGroupIds(
+//				array_column(
+//					$strLdapGroupClass::findAll(),'dn'));
+
+//dump($arrRemoteLdapGroupIds);
+
+		// Remote Assigned Ldap
+		$strLdapClass = static::$strLdapModel;
+		$arrRemoteAssignedLdapGroups = 
+				$strLdapClass::findAssignedGroups(
+					$objPerson->dn);
+
+//dump($arrRemoteAssignedLdapGroups);
+
+        // Local Assigned
+        $arrLocalAssignedGroupIds =
+            array_intersect(
+                $arrLocalGroupIds,
+                $arrAssignedGroupIds);
+
+//dump($arrLocalAssignedGroupIds);
+
+        $strLdapGroupClass = static::$strLdapGroupModel;
+        $arrSelectedAssignedGroupIds =
+            $strLdapGroupClass::getLocalLdapGroupIds(
+                array_intersect(
+                    $arrRemoteAssignedLdapGroups,
+                    $arrSelectedLdapGroups));
+
+//dump($arrSelectedAssignedGroupIds);
+
+        $arrUpdatedGroupIds =
+            array_merge(
+                $arrLocalAssignedGroupIds,
+                $arrSelectedAssignedGroupIds);
+
+//dump($arrUpdatedGroupIds);
+
+        $objPerson->groups = serialize($arrUpdatedGroupIds);
     }
 }

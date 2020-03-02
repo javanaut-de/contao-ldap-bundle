@@ -84,7 +84,7 @@ abstract class LdapPersonGroupModel extends \Model
 	 * Die Methode übersetzt arrayweise übergebene
 	 * LDAP-DNs in Contao-GIDs.
 	 *
-	 * TODO refactor
+	 * TODO Aktualität ist nicht immer gegeben
 	 */
     public static function getLocalLdapGroupIds($arrRemoteLdapGroupDNs)
     {

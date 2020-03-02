@@ -141,7 +141,7 @@ abstract class LdapPersonModel extends \Model
         return $arrAttributes;
     }
 
-    public static function getRemoteLdapGroupDNsByPersonDN($strDN)
+    public static function findAssignedGroups($strDN)
     {
 		\System::getContainer()
 			->get('logger')

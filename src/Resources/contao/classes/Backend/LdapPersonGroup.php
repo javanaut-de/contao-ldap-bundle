@@ -76,17 +76,18 @@ class LdapPersonGroup
 	 * of ldap groups to be imported
 	 * is stored.
 	 *
-     * @param $varValue
+     * @param $varValue LDAP groups selected to import in settings
      *
-     * @return mixed
+     * @return decoded dataset of selected groups
      */
-    public static function updateLocalGroups($varValue)
+    public static function updateLocalGroups($varValue, $full = false)
     {
 		\System::getContainer()
 			->get('logger')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
-					'varValue' => $varValue));
+					'varValue' => $varValue,
+					'full' => $full));
  
 		if (!\Config::get('addLdapFor' . static::$strPrefix . 's')) {
 			return $varValue;
@@ -94,7 +95,9 @@ class LdapPersonGroup
 
 		// num array of strings with encoded dn
 		// of currently selected ldap groups
-        $arrSelectedLdapGroups = deserialize($varValue, true);
+		$arrSelectedLdapGroups = \StringUtil::deserialize($varValue, true);
+		
+dump($arrSelectedLdapGroups);
 
         if (!empty($arrSelectedLdapGroups)) {
 
@@ -130,7 +133,7 @@ class LdapPersonGroup
 				$objGroup = $collectionGroup->current();
 			}
 
-			if (in_array($ldapDN, $arrSelectedLdapGroups)) {
+			if (in_array($ldapDN, $arrSelectedLdapGroups) || $full) {
             
 				if ($objGroup === null) {
 					$objGroup = new $strLocalGroupModel();
@@ -158,6 +161,8 @@ class LdapPersonGroup
 			}
 		}
 
+		// update ldap persons that belong 
+		// to added/imported ldap groups
 		$strClass = 'Refulgent\ContaoLDAPSupport\Ldap' . static::$strPrefix;
 		$strClass::updatePersons($arrSelectedLdapGroups);
 
@@ -203,39 +208,5 @@ class LdapPersonGroup
 					'value' => $value));
 
 		return $value;
-    }
-
-	/**
-     * Adds active remote ldap group's local representation
-	 * keeping the non ldap contao groups
-     *
-     * @param       $objPerson
-     * @param       $arrSelectedGroups
-     */
-    public static function importGroups($arrSelectedGroups)
-    {
-		\System::getContainer()
-			->get('logger')
-			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
-				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
-					'objPerson' => $objPerson,
-					'arrSelectedGroups' => $arrSelectedGroups));
-
-        $strLocalGroupClass = static::$strLocalGroupModel;
-        $strLdapGroupClass  = static::$strLdapGroupModel;
-
-        $objLocalLdapGroups  = $strLocalGroupClass::findBy(["(dn IS NOT NULL)"], null);
-
-        if ($objLocalLdapGroups !== null)
-        {
-            $arrLocalLdapPersonGroups = $objLocalLdapGroups->fetchEach('dn');
-
-            $objPerson->groups = serialize(
-                array_merge(
-                    array_diff($arrGroups, $arrLocalLdapPersonGroups), // non ldap local contao groups
-                    $strLdapGroupClass::getLocalLdapGroupIds(array_intersect($arrRemoteLdapGroups, $arrSelectedGroups))
-                )
-            );
-        }
     }
 }
