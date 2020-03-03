@@ -167,6 +167,14 @@ class LdapPerson
 		try {
 			$success = ldap_bind(Ldap::getConnection(strtolower(static::$strPrefix)), $arrPerson['dn'], $strPassword);
 		} catch (\ErrorException $ee) {
+
+            \System::getContainer()
+            ->get('logger')
+            ->error('Exception '.__CLASS__.'::'.__FUNCTION__,
+            array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+                'arrPerson[dn]' => $arrPerson['dn'],
+                'strPassword' => $strPassword));
+            
 			return false;
 		}
            
@@ -274,6 +282,8 @@ class LdapPerson
         // in tl_settings
         $arrSelectedGroups  = $arrSelectedGroups ?: \StringUtil::deserialize(\Config::get('ldap' . static::$strPrefix . 'Groups'), true);
 
+dump($arrSelectedGroups);
+
 		$strLocalModelClass = static::$strLocalModel;
 
         // create the person initially
@@ -320,7 +330,12 @@ class LdapPerson
        //     }
    //     }
 
-		static::updateAssignedGroups($objPerson, $arrSelectedGroups);
+        // Update local groups
+        $strLdapClass = 'Refulgent\ContaoLDAPSupport\Ldap' . static::$strPrefix . 'Group';
+        $strLdapClass::updateLocalGroups('N;', true);
+
+        static::updateAssignedGroups($objPerson, $arrSelectedGroups);
+        
 		static::applyFieldMapping($objPerson, $arrLdapPerson);
 		static::applyDefaultValues($objPerson);
 
@@ -451,11 +466,6 @@ class LdapPerson
 
 //dump($objPerson);
 //dump($arrSelectedLdapGroups);
-
-        // Update local groups
-        // TODO work out properly
-        //\Refulgent\ContaoLDAPSupport\LdapUserGroup::updateLocalGroups('N;', true); 
-        //\Refulgent\ContaoLDAPSupport\LdapMemberGroup::updateLocalGroups('N;', true);
 
         $strLocalGroupClass = static::$strLocalGroupModel;
 		$collectionContaoGroups = $strLocalGroupClass::findAll();

@@ -97,7 +97,7 @@ class LdapPersonGroup
 		// of currently selected ldap groups
 		$arrSelectedLdapGroups = \StringUtil::deserialize($varValue, true);
 		
-dump($arrSelectedLdapGroups);
+//&dump($arrSelectedLdapGroups);
 
         if (!empty($arrSelectedLdapGroups)) {
 
@@ -163,8 +163,11 @@ dump($arrSelectedLdapGroups);
 
 		// update ldap persons that belong 
 		// to added/imported ldap groups
-		$strClass = 'Refulgent\ContaoLDAPSupport\Ldap' . static::$strPrefix;
-		$strClass::updatePersons($arrSelectedLdapGroups);
+		//
+		// TODO failing due to circular invokations
+		//
+		//$strClass = 'Refulgent\ContaoLDAPSupport\Ldap' . static::$strPrefix;
+		//$strClass::updatePersons($arrSelectedLdapGroups);
 
 		\System::getContainer()
 			->get('logger')

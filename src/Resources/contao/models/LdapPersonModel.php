@@ -121,13 +121,10 @@ abstract class LdapPersonModel extends \Model
             {
                 preg_match_all('@%[^%]*%@i', $arrMapping['ldapField'], $arrMatches);
 
-                foreach ($arrMatches[0] as $strTag)
-                {
+                foreach ($arrMatches[0] as $strTag) {
                     $arrAttributes[] = rtrim(ltrim($strTag, '%'), '%');
                 }
-            }
-            else
-            {
+            } else {
                 $arrAttributes[] = $arrMapping['ldapField'];
             }
         }
@@ -147,7 +144,7 @@ abstract class LdapPersonModel extends \Model
 			->get('logger')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
-					'strDN' => $strDN));
+                    'strDN' => $strDN));
 
         $strLdapGroupModelClass = static::$strLdapGroupModel;
 
@@ -159,9 +156,11 @@ abstract class LdapPersonModel extends \Model
             return $arrGroups;
         }
 
-        foreach ($arrRemoteLdapGroups as $key => $arrGroup)
-        {
-            if ($key == 'count' || array_search($strDN, $arrGroup['persons']) === false) {
+        foreach ($arrRemoteLdapGroups as $key => $arrGroup) {
+
+            if (
+                $key === 'count' || 
+                array_search($strDN, $arrGroup['persons']) === false) {
                 continue;
             }
 
