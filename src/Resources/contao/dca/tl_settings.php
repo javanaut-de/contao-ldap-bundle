@@ -192,7 +192,6 @@ $arrDca['fields'] = array_merge(
             'exclude'   => true,
             'inputType' => 'checkbox',
             'eval'      => ['submitOnChange' => true],
-			'save_callback' => [['Refulgent\ContaoLDAPSupport\LdapPerson', 'updatePeople']]
         ],
     ]
 );

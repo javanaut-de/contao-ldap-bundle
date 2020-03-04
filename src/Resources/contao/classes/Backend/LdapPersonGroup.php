@@ -73,7 +73,7 @@ class LdapPersonGroup
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'varValue' => $varValue));
-
+			
 		// num array of strings with encoded dn
 		// of currently selected ldap groups
 		$arrSelectedLdapGroups = \StringUtil::deserialize($varValue, true);
@@ -87,13 +87,16 @@ class LdapPersonGroup
 			$varValue = serialize($arrSelectedLdapGroups);
 		}
 
-
 		// do nothing when ldap is deactivated
 		if (!\Config::get('addLdapFor' . static::$strPrefix . 's')) {
 			return $varValue;
 		}
 
+		// refresh groups
 		static::updateLocalGroups($arrSelectedLdapGroups);
+
+		$ldapPersonClass = 'Refulgent\\ContaoLDAPSupport\\Ldap'.static::$strPrefix;
+		$ldapPersonClass::updatePersons();
 
 		\System::getContainer()
 			->get('logger')
@@ -121,7 +124,7 @@ class LdapPersonGroup
 
 		if($value !== null) {
 
-        	$arrSelectedGroups = deserialize($value);
+        	$arrSelectedGroups = \StringUtil::deserialize($value);
 
 			if($arrSelectedGroups !== null && !empty($arrSelectedGroups)) {
 
@@ -164,9 +167,7 @@ class LdapPersonGroup
 			->get('logger')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
-					'arrSelectedGroups' => $arrSelectedGroups));
- 
-dump(['arrSelectedLdapGroups',$arrSelectedLdapGroups]);
+					'arrSelectedGroups' => $arrSelectedLdapGroups));
 
 		$strLdapGroupModel = static::$strLdapGroupModel;
 		// array of array(cn,dn,persons[])
@@ -183,8 +184,6 @@ dump(['arrSelectedLdapGroups',$arrSelectedLdapGroups]);
 
 			$ldapDN = $ldapGroup['dn'];
 
-dump(['ldapDN',$ldapDN]);
-
 			// Col mit 1 Objekt aus lokaler Gruppe
 			$collectionGroup = $strLocalGroupModel::findByDn($ldapDN);
 
@@ -194,8 +193,6 @@ dump(['ldapDN',$ldapDN]);
 				// Objekt aus lokaler Gruppe
 				$objGroup = $collectionGroup->current();
 			}
-
-dump(['objGroup',$objGroup]);
 
 			if (
 				$arrSelectedLdapGroups === null ||
@@ -226,13 +223,5 @@ dump(['objGroup',$objGroup]);
 				$objGroup->save();
 			}
 		}
-
-		// update ldap persons that belong 
-		// to added/imported ldap groups
-		//
-		//if(!$full) {
-			//$strClass = 'Refulgent\ContaoLDAPSupport\Ldap' . static::$strPrefix;
-			//$strClass::updatePersons($arrSelectedLdapGroups);
-		//}
     }
 }

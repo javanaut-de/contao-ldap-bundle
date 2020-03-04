@@ -4,6 +4,8 @@ namespace Refulgent\ContaoLDAPSupport;
 
 use Contao\CoreBundle\Monolog\ContaoContext;
 
+use Contao\Model\Collection;
+
 abstract class LdapPersonModel extends \Model
 {
     protected static $arrRequiredAttributes = ['uid'];
@@ -63,6 +65,23 @@ abstract class LdapPersonModel extends \Model
             return false;
         }
     }
+
+    /*public static function findAllLdap() {
+
+        $strLocalClass = static::$strLocalModel;
+        $collectionLocalPersons = $strLocalClass::findAll();
+
+        $arrLdapPersons = [];
+        if($collectionLocalPersons !== null) {
+            while ($collectionLocalPersons->next()) {
+                if($collectionLocalPersons->dn !== null) {
+                    $arrLdapPersons[] = $collectionLocalPersons->id;
+                }
+            }
+        }
+
+        return new Collection($arrLdapPersons, 'tl_user');
+    }*/
 
     public static function findByUsername($strUsername)
     {

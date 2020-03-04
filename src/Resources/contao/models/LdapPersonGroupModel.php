@@ -80,6 +80,27 @@ abstract class LdapPersonGroupModel extends \Model
         }
     }
 
+    /*
+	 * Die Methode übersetzt arrayweise übergebene
+	 * LDAP-DNs in Contao-GIDs.
+	 *
+	 * @return Array of string containing DNs of Groups selected for import
+	 */
+    public static function findSelectedLdapGroups()
+    {
+        $arrSelectedLdapGroups = \StringUtil::deserialize(
+            \Config::get('ldap' . static::$strPrefix . 'Groups'),  // TODO rename sql field: ldapPrefixSelectedGroups
+            true);
+
+		\System::getContainer()
+			->get('logger')
+			->info('Result '.__CLASS__.'::'.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+					'arrSelectedLdapGroups' => $arrSelectedLdapGroups));
+
+        return $arrSelectedLdapGroups;
+    }
+
 	/*
 	 * Die Methode übersetzt arrayweise übergebene
 	 * LDAP-DNs in Contao-GIDs.
