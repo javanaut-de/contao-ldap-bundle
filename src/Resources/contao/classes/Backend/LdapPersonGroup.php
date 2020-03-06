@@ -167,60 +167,57 @@ class LdapPersonGroup
 			->get('logger')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
-					'arrSelectedGroups' => $arrSelectedLdapGroups));
+					'arrSelectedLdapGroups' => $arrSelectedLdapGroups));
 
 		$strLdapGroupModel = static::$strLdapGroupModel;
-		// array of array(cn,dn,persons[])
-		$arrLdapGroups     = $strLdapGroupModel::findAll();
+		// array of array(cn,dn,persons[]) of all imported ldap groups
+		$collectionImportedLdapGroups     = $strLdapGroupModel::findAllImported();
 
-		// skip if no ldap grps present
-		if (!is_array($arrLdapGroups) || empty($arrLdapGroups)) {
+		// skip if no remote ldap grps present
+		if($collectionImportedLdapGroups === null) {
 			return;
 		}
+		//if (!is_array($arrImportedLdapGroups) || empty($arrImportedLdapGroups)) {
+		//	return;
+		//}
 
-		$strLocalGroupModel = static::$strLocalGroupModel;
+		$strLocalGroupClass = static::$strLocalGroupModel;
 
-		foreach ($arrLdapGroups as $ldapGroup) {
+		// iterate all remote ldap groups
+		while ($collectionImportedLdapGroups->next()) {
 
-			$ldapDN = $ldapGroup['dn'];
+			$ldapGroupDN = $collectionImportedLdapGroups->dn;
 
 			// Col mit 1 Objekt aus lokaler Gruppe
-			$collectionGroup = $strLocalGroupModel::findByDn($ldapDN);
+			$collectionLocalGroup = $strLocalGroupClass::findByDn($ldapGroupDN);
 
-			$objGroup = null;
-
-			if($collectionGroup !== null) {
-				// Objekt aus lokaler Gruppe
-				$objGroup = $collectionGroup->current();
-			}
-
-			if (
+			$isSelected = (
 				$arrSelectedLdapGroups === null ||
-				in_array($ldapDN, $arrSelectedLdapGroups)) {
-            
-				if ($objGroup === null) {
-					$objGroup = new $strLocalGroupModel();
-					$objGroup->dn = $ldapDN;
+				in_array($ldapGroupDN, $arrSelectedLdapGroups));
+
+dump([
+		'ldapGroupDN:',$ldapGroupDN,
+		'arrSelectedLdapGroups:',$arrSelectedLdapGroups,
+		'collectionLdapGroup',$collectionLocalGroup],
+		'isSelected',$isSelected);
+
+			$objLocalGroup = null;
+			if($collectionLocalGroup === null) {
+				if ($isSelected) {
+						$objLocalGroup = new $strLocalGroupClass();
+						$objLocalGroup->dn = $ldapGroupDN;
+						$objLocalGroup->name = 
+							$GLOBALS['TL_LANG']['MSC']['ldapGroupPrefix']
+								.$collectionImportedLdapGroups->cn;
+						$objLocalGroup->tstamp = time();
 				}
-
-				$objGroup->tstamp = time();
-
-				foreach($arrLdapGroups as $group) {
-					if($group['dn'] == $ldapDN) {
-                    	$objGroup->name   = $GLOBALS['TL_LANG']['MSC']['ldapGroupPrefix'] . $group['cn'];
-                    }
-				}
-
-				$objGroup->disable = false;
-
 			} else {
-				if ($objGroup !== null) {
-					$objGroup->disable = true;
-				}
+				$objLocalGroup = $collectionLocalGroup->current();
 			}
-			
-			if ($objGroup !== null) {
-				$objGroup->save();
+				
+			if($objLocalGroup !== null) {
+				$objLocalGroup->disable = !$isSelected;
+				$objLocalGroup->save();
 			}
 		}
     }

@@ -4,6 +4,8 @@ namespace Refulgent\ContaoLDAPSupport;
 
 use Contao\CoreBundle\Monolog\ContaoContext;
 
+use Contao\Model\Collection;
+
 abstract class LdapPersonGroupModel extends \Model
 {
 
@@ -78,6 +80,23 @@ abstract class LdapPersonGroupModel extends \Model
         } else {
             return false;
         }
+    }
+
+    public static function findAllImported() {
+
+        $strLocalGroupClass = static::$strLocalGroupModel;
+        $collectionLocalGroups = $strLocalGroupClass::findAll();
+
+        $arrImportedLdapGroups = [];
+        if($collectionLocalGroups !== null) {
+            while ($collectionLocalGroups->next()) {
+                if($collectionLocalGroups->dn !== null) {
+                    $arrImportedLdapGroups[] = $collectionLocalGroups->current();
+                }
+            }
+        }
+
+        return new Collection($arrImportedLdapGroups, 'tl_user_group');
     }
 
     /*

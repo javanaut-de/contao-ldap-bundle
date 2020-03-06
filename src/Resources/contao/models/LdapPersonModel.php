@@ -66,21 +66,21 @@ abstract class LdapPersonModel extends \Model
         }
     }
 
-    /*public static function findAllLdap() {
+    /*public static function findAllImported() {
 
         $strLocalClass = static::$strLocalModel;
         $collectionLocalPersons = $strLocalClass::findAll();
 
-        $arrLdapPersons = [];
+        $arrImportedLdapPersons = [];
         if($collectionLocalPersons !== null) {
             while ($collectionLocalPersons->next()) {
                 if($collectionLocalPersons->dn !== null) {
-                    $arrLdapPersons[] = $collectionLocalPersons->id;
+                    $arrImportedLdapPersons[] = $collectionLocalPersons->current();
                 }
             }
         }
 
-        return new Collection($arrLdapPersons, 'tl_user');
+        return new Collection($arrImportedLdapPersons, 'tl_user');
     }*/
 
     public static function findByUsername($strUsername)
