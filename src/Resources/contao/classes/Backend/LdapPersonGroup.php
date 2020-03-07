@@ -177,9 +177,6 @@ class LdapPersonGroup
 		if($collectionImportedLdapGroups === null) {
 			return;
 		}
-		//if (!is_array($arrImportedLdapGroups) || empty($arrImportedLdapGroups)) {
-		//	return;
-		//}
 
 		$strLocalGroupClass = static::$strLocalGroupModel;
 
@@ -194,12 +191,6 @@ class LdapPersonGroup
 			$isSelected = (
 				$arrSelectedLdapGroups === null ||
 				in_array($ldapGroupDN, $arrSelectedLdapGroups));
-
-dump([
-		'ldapGroupDN:',$ldapGroupDN,
-		'arrSelectedLdapGroups:',$arrSelectedLdapGroups,
-		'collectionLdapGroup',$collectionLocalGroup],
-		'isSelected',$isSelected);
 
 			$objLocalGroup = null;
 			if($collectionLocalGroup === null) {

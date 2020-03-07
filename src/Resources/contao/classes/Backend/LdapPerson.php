@@ -140,59 +140,59 @@ class LdapPerson
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrSelectedLdapGroups' => $arrSelectedLdapGroups));
 
-        $strLdapModelClass = static::$strLdapModel;
-        $arrLdapPersons    = $strLdapModelClass::findAll();
-
-        if (!is_array($arrLdapPersons)) {
-            return;
-        }
-
-        $arrLdapDNs = [];
+        $arrUpdatedLdapDNs = [];
 
         $arrSkipUsernames = \StringUtil::trimsplit(',',
             \Config::get('ldap' . static::$strPrefix . 'SkipLdapUsernames'));
-
+            
         $strLocalModelClass = static::$strLocalModel;
 
-        // iterates all ldap persons
-        foreach ($arrLdapPersons as $strKey => $arrLdapPerson)
-        {
-			// skip if entry is count or has no uid field
-            if ($strKey == 'count'
-                || $arrLdapPerson[\Config::get(
-                    'ldap' . static::$strPrefix . 'LdapUsernameField'
-                )]['count'] < 1){
-                continue;
-            }
+        $strLdapModelClass = static::$strLdapModel;
+        if($arrLdapPersons = $strLdapModelClass::findAll()) { // current remote ldap persons
 
-			$strDN = $arrLdapPerson['dn'];
+            // iterates all ldap persons
+            foreach ($arrLdapPersons as $strKey => $arrLdapPerson)
+            {
+			    // skip if entry is count or has no uid field
+                if ($strKey == 'count'
+                    || $arrLdapPerson[\Config::get(
+                        'ldap' . static::$strPrefix . 'LdapUsernameField'
+                    )]['count'] < 1){
+                    continue;
+                }
+
+			    $strDN = $arrLdapPerson['dn'];
+                
+			    // should be maximum 1 -> else a better filter has to be set
+                $strUsername =
+                    $arrLdapPerson[
+                        \Config::get('ldap' . static::$strPrefix . 'LdapUsernameField')]
+                            [0];
+
+                if (in_array($strUsername, $arrSkipUsernames)) {
+                    continue;
+                }
+
+                if (Ldap::usernameIsEmail() && !\Validator::isEmail($strUsername)) {
+                    continue;
+                }
+
+                $collectionLocalPerson = $strLocalModelClass::findBy('dn', $strDN);
+
+                if($collectionLocalPerson === null) {
+                    $objLocalPerson = static::createPerson($arrLdapPerson) ;
+                } else {
+                    $objLocalPerson = $collectionLocalPerson->current();
+                }
+
+                static::updatePerson(
+                    $objLocalPerson,
+                    $arrLdapPerson);
+
+                $objLocalPerson->save();
             
-			// should be maximum 1 -> else a better filter has to be set
-            $strUsername = $arrLdapPerson[\Config::get('ldap' . static::$strPrefix . 'LdapUsernameField')][0];
-
-            if (in_array($strUsername, $arrSkipUsernames)) {
-                continue;
+                $arrUpdatedLdapDNs[] = $strDN;
             }
-
-            if (Ldap::usernameIsEmail() && !\Validator::isEmail($strUsername)) {
-                continue;
-            }
-
-            $arrLdapDNs[] = $strDN;
-
-            $collectionLocalPerson = $strLocalModelClass::findBy('dn', $strDN);
-
-            if($collectionLocalPerson === null) {
-                $objLocalPerson = static::createPerson($arrLdapPerson) ;
-            } else {
-                $objLocalPerson = $collectionLocalPerson->current();
-            }
-
-            static::updatePerson(
-                $objLocalPerson,
-                $arrLdapPerson);
-
-            $objLocalPerson->save();
         }
 
         // mark remotely missing persons as disabled
@@ -204,7 +204,7 @@ class LdapPerson
                     continue;
                 };
 
-                if ($strDN !== null && !in_array($strDN, $arrLdapDNs)) {
+                if ($strDN !== null && !in_array($strDN, $arrUpdatedLdapDNs)) {
                     $collectionPersons->disable = true;
                     $collectionPersons->save();
                 } else {
@@ -252,6 +252,7 @@ class LdapPerson
 	/*
 	 * Updates a local person
      * 
+     * // TODO Params aktualisieren
 	 * @param objPerson Contao dataset of person
 	 * @param arrPerson LDAP dataset of person 0:[count,0,dn,uid:[count,0]]
 	 * @param strUsername // TODO useless?
