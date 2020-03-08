@@ -34,11 +34,14 @@ class LdapPerson
             $ldapGroupModelClass = 'Refulgent\\ContaoLDAPSupport\\Ldap'.static::$strPrefix.'GroupModel';
             $arrSelectedLdapGroups = $ldapGroupModelClass::findSelectedLdapGroups();
             $ldapGroupClass = 'Refulgent\\ContaoLDAPSupport\\Ldap'.static::$strPrefix.'Group';
-            $ldapGroupClass::updateLocalGroups($arrSelectedLdapGroups);
+            $ldapGroupClass::updateGroups($arrSelectedLdapGroups);
 
-            static::updatePerson($objLocalPerson = static::createPerson($arrLdapPerson), $arrLdapPerson);
+            static::updatePerson(
+                $objLocalPerson = static::createPerson($arrLdapPerson),
+                $arrLdapPerson,
+                $arrSelectedLdapGroups);
 
-            static::updateAssignedGroups($objLocalPerson);
+            static::updateAssignedGroups($objLocalPerson, $arrSelectedLdapGroups);
 
             $objLocalPerson->save();
         }
@@ -68,16 +71,14 @@ class LdapPerson
         if ($arrLdapPerson = static::authenticateLdapPerson($strUsername, $strPassword)) {
             
             // update groups and/or mapped fields since they could have changed remotely
-
-           // refresh groups
            $ldapGroupModelClass = 'Refulgent\\ContaoLDAPSupport\\Ldap'.static::$strPrefix.'GroupModel';
            $arrSelectedLdapGroups = $ldapGroupModelClass::findSelectedLdapGroups();
            $ldapGroupClass = 'Refulgent\\ContaoLDAPSupport\\Ldap'.static::$strPrefix.'Group';
-           $ldapGroupClass::updateLocalGroups($arrSelectedLdapGroups);
+           $ldapGroupClass::updateGroups($arrSelectedLdapGroups);
 
-            static::updatePerson($objLocalPerson, $arrLdapPerson);
+            static::updatePerson($objLocalPerson, $arrLdapPerson, $arrSelectedLdapGroups);
 
-            static::updateAssignedGroups($objLocalPerson);
+            static::updateAssignedGroups($objLocalPerson, $arrSelectedLdapGroups);
 
             $objLocalPerson->save();
         }
@@ -111,7 +112,11 @@ class LdapPerson
 		 * TODO ldap_close notwendig? Nutzen?
 		 */
 		try {
-			ldap_bind(Ldap::getConnection(strtolower(static::$strPrefix)), $arrLdapPerson['dn'], $strPassword);
+			ldap_bind(
+                Ldap::getConnection(strtolower(static::$strPrefix)),
+                $arrLdapPerson['dn'],
+                $strPassword);
+
 		} catch (\ErrorException $ee) {
 
             \System::getContainer()
@@ -127,12 +132,9 @@ class LdapPerson
     }
 
 	/*
-	 *
+	 * TODO descriptions
 	 */
-    public static function updatePersons() {
-
-        $ldapGroupModelClass = static::$strLdapGroupModel;
-        $arrSelectedLdapGroups = $ldapGroupModelClass::findSelectedLdapGroups();
+    public static function updatePersons($arrSelectedLdapGroups) {
 
 		\System::getContainer()
 			->get('logger')
@@ -187,7 +189,8 @@ class LdapPerson
 
                 static::updatePerson(
                     $objLocalPerson,
-                    $arrLdapPerson);
+                    $arrLdapPerson,
+                    $arrSelectedLdapGroups);
 
                 $objLocalPerson->save();
             
@@ -216,7 +219,7 @@ class LdapPerson
     }
 
     /*
-     *
+     * TODO description
      */
     public static function createPerson($arrLdapPerson) {
 
@@ -258,7 +261,7 @@ class LdapPerson
 	 * @param strUsername // TODO useless?
 	 * @param arrSelectedGroups array of strings with dn of currently selected ldap groups
 	 */
-    public static function updatePerson($objLocalPerson, $arrLdapPerson)
+    public static function updatePerson($objLocalPerson, $arrLdapPerson, $arrSelectedLdapGroups)
     {        
 		\System::getContainer()
 			->get('logger')
@@ -279,12 +282,13 @@ class LdapPerson
 		 * will always trigger the checkCredentials hook
 		 *
 		 * TODO fix serious security issue
-         * TODO fix debug blocking of ID === 1
+         * TODO block local admin accounts here
+         * to prevent accidential locking out
+         * if something unforseen happens
 		 */
-        if($objLocalPerson->id === 1)
-            dump(['1',$objLocalPerson->username]);
-
-		//$objLocalPerson->password = md5(time() . $objLocalPerson->username);
+        $objLocalPerson->password = md5(time() . $objLocalPerson->username);
+        
+        static::updateAssignedGroups($objLocalPerson, $arrSelectedLdapGroups);
     }
 
     public static function applyFieldMapping($objPerson, $arrRemoteLdapPerson)
@@ -386,10 +390,7 @@ class LdapPerson
      *
      * @param       $objPerson
      */
-    public static function updateAssignedGroups($objLocalPerson) {
-
-        $strLdapGroupClass = static::$strLdapGroupModel;
-        $arrSelectedLdapGroups = $strLdapGroupClass::findSelectedLdapGroups();
+    public static function updateAssignedGroups($objLocalPerson, $arrSelectedLdapGroups) {
 
 		\System::getContainer()
 			->get('logger')
@@ -398,28 +399,29 @@ class LdapPerson
 					'objPerson' => $objLocalPerson,
 					'arrSelectedGroups' => $arrSelectedLdapGroups));
 
-        $strLocalGroupClass = static::$strLocalGroupModel;
-		$collectionContaoGroups = $strLocalGroupClass::findAll();
+        // Find local group IDs (not imported)
+        $strLocalGroupModelClass = static::$strLocalGroupModel;
+		$collectionLocalGroups = $strLocalGroupModelClass::findAll();
 
-        // Contao, Local
         $arrLocalGroupIds = [];
-        if($collectionContaoGroups !== null) {
-		    while ($collectionContaoGroups->next()) {
-                //$arrContaoGroupIds[] = $collectionContaoGroups->id;
-                if($collectionContaoGroups->dn === null) {
-                    $arrLocalGroupIds[] = $collectionContaoGroups->id;
+        if($collectionLocalGroups !== null) {
+		    while ($collectionLocalGroups->next()) {
+                if($collectionLocalGroups->dn === null) {
+                    $arrLocalGroupIds[] = $collectionLocalGroups->id;
                 }
             }
         }
 
+//dump(['arrLocalGroupIds',$arrLocalGroupIds]);
+
 		// Assigned
-		$arrAssignedGroupIds = \StringUtil::deserialize($objLocalPerson->groups[0]) ?: []; // TODO Why is array groups[0] ?
+        $arrAssignedGroupIds = \StringUtil::deserialize($objLocalPerson->groups) ?: [];
 
 		// Remote Assigned Ldap
 		$strLdapClass = static::$strLdapModel;
 		$arrRemoteAssignedLdapGroups = 
 				$strLdapClass::findAssignedGroups(
-					$objLocalPerson->dn);
+                    $objLocalPerson->dn);
 
         // Local Assigned
         $arrLocalAssignedGroupIds =
@@ -427,9 +429,9 @@ class LdapPerson
                 $arrLocalGroupIds,
                 $arrAssignedGroupIds);
 
-        $strLdapGroupClass = static::$strLdapGroupModel;
+        $strLdapGroupModelClass = static::$strLdapGroupModel;
         $arrSelectedAssignedGroupIds =
-            $strLdapGroupClass::getLocalLdapGroupIds(
+            $strLdapGroupModelClass::getLocalLdapGroupIds(
                 array_intersect(
                     $arrRemoteAssignedLdapGroups,
                     $arrSelectedLdapGroups));

@@ -66,6 +66,50 @@ abstract class LdapPersonModel extends \Model
         }
     }
 
+    /*public static function findByDn($strUserDN)
+    {
+		\System::getContainer()
+			->get('logger')
+			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
+				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+					'strUserDN' => $strUserDN));
+
+        if ($objConnection = Ldap::getConnection(strtolower(static::$strPrefix)))
+        {
+
+            $strFilter = '(&(dn=' . $strUserDN . ')' . \Config::get(
+                    'ldap' . static::$strPrefix . 'PersonFilter'
+                ) . ')'; 
+
+            $arrAttributes = static::$arrRequiredAttributes;
+            $arrAttributes = static::addAttributes($arrAttributes);
+   
+            // search by username
+            $strQuery = ldap_search($objConnection, \Config::get('ldap' . static::$strPrefix . 'PersonBase'), $strFilter, $arrAttributes);
+
+            if (!$strQuery) {
+            	die('findByDn: query failed');
+                return null;
+            }
+
+            $arrResult = ldap_get_entries($objConnection, $strQuery);
+
+            if (!is_array($arrResult) || empty($arrResult)) {
+                return null;
+            }
+
+			\System::getContainer()
+				->get('logger')
+				->info('Result[0] '.__CLASS__.'::'.__FUNCTION__,
+					array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+						'arrResult' => $arrResult));
+
+            return $arrResult[0];
+        } else {
+            return null;
+        }
+    }*/
+
     /*public static function findAllImported() {
 
         $strLocalClass = static::$strLocalModel;
@@ -99,9 +143,11 @@ abstract class LdapPersonModel extends \Model
 
             $arrAttributes = static::$arrRequiredAttributes;
             $arrAttributes = static::addAttributes($arrAttributes);
-           
+
             // search by username
             $strQuery = ldap_search($objConnection, \Config::get('ldap' . static::$strPrefix . 'PersonBase'), $strFilter, $arrAttributes);
+
+
 
             if (!$strQuery) {
             	die('findByUsername: query failed');
@@ -134,7 +180,7 @@ abstract class LdapPersonModel extends \Model
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrAttributes' => $arrAttributes));
 
-        foreach (deserialize(\Config::get('ldap' . static::$strPrefix . 'PersonFieldMapping'), true) as $arrMapping)
+        foreach (\StringUtil::deserialize(\Config::get('ldap' . static::$strPrefix . 'PersonFieldMapping'), true) as $arrMapping)
         {
             if (strpos($arrMapping['ldapField'], '%') !== false)
             {
@@ -157,13 +203,17 @@ abstract class LdapPersonModel extends \Model
         return $arrAttributes;
     }
 
-    public static function findAssignedGroups($strDN)
+    /*
+     * @param strUserDN String with DN of user whose assigned groups shall be found
+     * @return Num array of strings containing DNs of assigned groups
+     */
+    public static function findAssignedGroups($strUserDN)
     {
 		\System::getContainer()
 			->get('logger')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
-                    'strDN' => $strDN));
+                    'strUserDN' => $strUserDN));
 
         $strLdapGroupModelClass = static::$strLdapGroupModel;
 
@@ -179,7 +229,7 @@ abstract class LdapPersonModel extends \Model
 
             if (
                 $key === 'count' || 
-                array_search($strDN, $arrGroup['persons']) === false) {
+                array_search($strUserDN, $arrGroup['persons']) === false) {
                 continue;
             }
 

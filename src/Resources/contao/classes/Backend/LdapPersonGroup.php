@@ -93,10 +93,10 @@ class LdapPersonGroup
 		}
 
 		// refresh groups
-		static::updateLocalGroups($arrSelectedLdapGroups);
+		static::updateGroups($arrSelectedLdapGroups);
 
 		$ldapPersonClass = 'Refulgent\\ContaoLDAPSupport\\Ldap'.static::$strPrefix;
-		$ldapPersonClass::updatePersons();
+		$ldapPersonClass::updatePersons($arrSelectedLdapGroups);
 
 		\System::getContainer()
 			->get('logger')
@@ -154,14 +154,14 @@ class LdapPersonGroup
 	 * in LDAP Groups doesn't exist
 	 " or are not to be imported anymore
 	 * are disabled.
-	 * 
-	 * TODO Verschachtelte Ifs optimieren
 	 *
 	 * @param arrSelectedGroups Array of strings containing DNs
-	 * of groups to be imported. All groups are imported
+	 * of groups to be imported. 
+	 * 
+	 * TODO Not effective now: All groups are imported
 	 * when not passed.
 	 */
-    public static function updateLocalGroups($arrSelectedLdapGroups = null) {
+    public static function updateGroups($arrSelectedLdapGroups = []) {
 
 		\System::getContainer()
 			->get('logger')
@@ -169,47 +169,85 @@ class LdapPersonGroup
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrSelectedLdapGroups' => $arrSelectedLdapGroups));
 
-		$strLdapGroupModel = static::$strLdapGroupModel;
-		// array of array(cn,dn,persons[]) of all imported ldap groups
-		$collectionImportedLdapGroups     = $strLdapGroupModel::findAllImported();
+		// Selected groups need to be persisted in settings soonest possible
+		// as further functions depend on valid information
+		//\Config::persist(
+		//	'ldap' . static::$strPrefix . 'Groups',
+		//	serialize($arrSelectedLdapGroups));
 
-		// skip if no remote ldap grps present
-		if($collectionImportedLdapGroups === null) {
-			return;
+		$strLdapGroupModelClass = static::$strLdapGroupModel;
+
+		if($collectionImportedLdapGroups = $strLdapGroupModelClass::findAllImported()) {
+			$importedDNs = $collectionImportedLdapGroups->fetchEach('dn');
+		} else {
+			$importedDNs = [];
 		}
 
-		$strLocalGroupClass = static::$strLocalGroupModel;
+		if($arrRemoteLdapGroups = $strLdapGroupModelClass::findAll()) {
+			$remoteDNs = array_column($arrRemoteLdapGroups, 'dn');
+		} else {
+			$remoteDNs = [];
+			$arrRemoteLdapGroups = [];
+		}
 
-		// iterate all remote ldap groups
-		while ($collectionImportedLdapGroups->next()) {
+		$arrPreviouslySelectedLdapGroups = $strLdapGroupModelClass::findSelectedLdapGroups();
+   
+		// TODO Comment formulas in detail
+		// (R - (IxP)) x S
+		$arrGroupDNsToImport = 
+			array_intersect(
+				array_diff(
+					$remoteDNs,
+					array_intersect(
+						$importedDNs,
+						$arrPreviouslySelectedLdapGroups)),
+				$arrSelectedLdapGroups);
 
-			$ldapGroupDN = $collectionImportedLdapGroups->dn;
+		// I - (RxS)
+		$arrGroupDNsToDisable = array_diff(
+			$importedDNs,
+			array_intersect(
+				$remoteDNs,
+				$arrSelectedLdapGroups));
 
-			// Col mit 1 Objekt aus lokaler Gruppe
-			$collectionLocalGroup = $strLocalGroupClass::findByDn($ldapGroupDN);
+		$strLocalGroupModelClass = static::$strLocalGroupModel;
 
-			$isSelected = (
-				$arrSelectedLdapGroups === null ||
-				in_array($ldapGroupDN, $arrSelectedLdapGroups));
+		// Importing groups
+		foreach($arrGroupDNsToImport as $dnToImport) {
 
-			$objLocalGroup = null;
+			$collectionLocalGroup = $strLocalGroupModelClass::findByDn($dnToImport);
+			
 			if($collectionLocalGroup === null) {
-				if ($isSelected) {
-						$objLocalGroup = new $strLocalGroupClass();
-						$objLocalGroup->dn = $ldapGroupDN;
-						$objLocalGroup->name = 
-							$GLOBALS['TL_LANG']['MSC']['ldapGroupPrefix']
-								.$collectionImportedLdapGroups->cn;
-						$objLocalGroup->tstamp = time();
-				}
+
+				$objNewGroupToImport = new $strLocalGroupModelClass();
+				$objNewGroupToImport->dn = $dnToImport;
+
+				$arrLdapGroup =
+					$arrRemoteLdapGroups[
+						array_search(
+							$dnToImport, 
+							array_column($arrRemoteLdapGroups, 'dn'))];
+
+				$objNewGroupToImport->name =
+					$GLOBALS['TL_LANG']['MSC']['ldapGroupPrefix']
+					.$arrLdapGroup['cn'];
+
+				$objNewGroupToImport->tstamp = time();
+				$objNewGroupToImport->save();
+
 			} else {
-				$objLocalGroup = $collectionLocalGroup->current();
-			}
-				
-			if($objLocalGroup !== null) {
-				$objLocalGroup->disable = !$isSelected;
-				$objLocalGroup->save();
+
+				$collectionLocalGroup->disable = false;
+				$collectionLocalGroup->save();
 			}
 		}
-    }
+
+		// Disabling groups
+		foreach($arrGroupDNsToDisable as $dnToDisable) {
+
+			$collectionLocalGroup = $strLocalGroupModelClass::findByDn($dnToDisable);
+			$collectionLocalGroup->disable = true;
+			$collectionLocalGroup->save();
+		}
+	}
 }

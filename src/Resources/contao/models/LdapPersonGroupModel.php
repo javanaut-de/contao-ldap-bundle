@@ -16,6 +16,9 @@ abstract class LdapPersonGroupModel extends \Model
     protected static $strLdapGroupModel     = '';
     protected static $strLocalGroupModel    = '';
 
+    /*
+     * @return Array with ldap result objects or false when empty
+     */
     public static function findAll(array $arrOptions = [])
     { 
 		\System::getContainer()
@@ -100,23 +103,25 @@ abstract class LdapPersonGroupModel extends \Model
     }
 
     /*
-	 * Die Methode übersetzt arrayweise übergebene
-	 * LDAP-DNs in Contao-GIDs.
+	 * Translates array-wise passed DNs into
+     * corresponding local group IDs
+     * 
+     * WARNING: Not valid until storage of submitted data is complete!
 	 *
 	 * @return Array of string containing DNs of Groups selected for import
 	 */
     public static function findSelectedLdapGroups()
     {
         $arrSelectedLdapGroups = \StringUtil::deserialize(
-            \Config::get('ldap' . static::$strPrefix . 'Groups'),  // TODO rename sql field: ldapPrefixSelectedGroups
+           \Config::get('ldap' . static::$strPrefix . 'Groups'),  // TODO rename sql field: ldapPrefixSelectedGroups
             true);
-
+    
 		\System::getContainer()
 			->get('logger')
 			->info('Result '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrSelectedLdapGroups' => $arrSelectedLdapGroups));
-
+    
         return $arrSelectedLdapGroups;
     }
 
