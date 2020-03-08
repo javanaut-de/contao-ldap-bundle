@@ -73,8 +73,9 @@ $arrFields = [
         'label'     => &$GLOBALS['TL_LANG']['tl_settings']['personFilter'],
         'exclude'   => true,
         'inputType' => 'text',
-        'default'   => '(&(objectClass=person)(objectClass=posixAccount))',
-        'eval'      => ['mandatory' => true, 'decodeEntities' => true, 'tl_class' => 'w50'],
+        'default'   => '(objectClass=*)', //(&(objectClass=person)(objectClass=posixAccount))
+        'eval'      => ['decodeEntities' => true, 'tl_class' => 'w50'],
+        'load_callback' => [['DefaultHandler', 'getDefaultValue']],
     ],
     'ldapUsernameField'   => [
         'label'     => &$GLOBALS['TL_LANG']['tl_settings']['ldapUsernameField'],
@@ -143,8 +144,9 @@ $arrFields = [
         'label'     => &$GLOBALS['TL_LANG']['tl_settings']['groupFilter'],
         'exclude'   => true,
         'inputType' => 'text',
-        'default'   => '(&(objectClass=group))',
-        'eval'      => ['mandatory' => true, 'decodeEntities' => true, 'tl_class' => 'w50'],
+        'default'   => '(objectClass=*)', //(&(objectClass=group))
+        'eval'      => ['decodeEntities' => true, 'tl_class' => 'w50'],
+        'load_callback' => [['DefaultHandler', 'getDefaultValue']],
     ],
     'groupFieldMapping'   => [
         'label'     => &$GLOBALS['TL_LANG']['tl_settings']['groupFieldMapping'],
@@ -196,8 +198,6 @@ $arrDca['fields'] = array_merge(
     ]
 );
 
-
-
 // dynamically add fields for members and users
 foreach ($arrFields as $strField => $arrData) {
 
@@ -205,6 +205,7 @@ foreach ($arrFields as $strField => $arrData) {
         continue;
     }
 
+    
     $arrDca['fields']['ldapMember' . ucfirst($strField)] = $arrData;
     $arrDca['subpalettes']['addLdapForMembers'] .= 'ldapMember' . ucfirst($strField) . ',';
 
@@ -221,6 +222,22 @@ $arrDca['fields']['ldapUserGroups']['save_callback']    = [['Refulgent\ContaoLDA
 $arrDca['fields']['ldapUserGroups']['load_callback']    = [['Refulgent\ContaoLDAPSupport\LdapUserGroup', 'loadPersonGroups']];
 
 
+/*
+ *
+ */
+class DefaultHandler {
+
+    public static function getDefaultValue($value, DataContainer $container) {
+
+        if(!$value) {
+            $value = $GLOBALS['TL_DCA']
+            ['tl_settings']['fields']
+            [$container->field]['default'];
+        }
+
+        return $value;
+    }
+}
 
 
 

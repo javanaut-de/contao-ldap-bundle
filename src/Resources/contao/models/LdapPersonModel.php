@@ -35,12 +35,30 @@ abstract class LdapPersonModel extends \Model
             $arrAttributes = static::$arrRequiredAttributes;
             $arrAttributes = static::addAttributes($arrAttributes);
 
-            $strQuery = ldap_search(
-                $objConnection,
-                \Config::get('ldap' . static::$strPrefix . 'PersonBase'),
-                \Config::get('ldap' . static::$strPrefix . 'PersonFilter'),
-                $arrAttributes
-            );
+            // TODO comment default mechanism
+            $strFilterFieldName = 'ldap'.static::$strPrefix.'PersonFilter';
+
+            if(!($strFilter = \Config::get($strFilterFieldName))) {
+                $strFilter = '(objectClass=*)';
+                
+                // TODO DCA not available here when loggin in
+                //$GLOBALS['TL_DCA']['tl_settings']
+                //    ['fields'][$strFilterFieldName]['default'];
+            }
+
+            try{
+                $strQuery = ldap_search(
+                    $objConnection,
+                    \Config::get('ldap' . static::$strPrefix . 'PersonBase'),
+                    $strFilter,
+                    $arrAttributes
+                );
+            } catch (\ErrorException $ee) {
+
+                // TODO die...
+                die( 'Ex: ldap search failed ('.__CLASS__.'::'.__FUNCTION__.')' );
+                return false;
+            }
 
             if (!$strQuery) {
                 return false;
@@ -137,17 +155,39 @@ abstract class LdapPersonModel extends \Model
 
         if ($objConnection = Ldap::getConnection(strtolower(static::$strPrefix)))
         {
-            $strFilter = '(&(' . \Config::get('ldap' . static::$strPrefix . 'LdapUsernameField') . '=' . $strUsername . ')' . \Config::get(
-                    'ldap' . static::$strPrefix . 'PersonFilter'
-                ) . ')'; 
+            // TODO comment default mechanism
+            $strFilterFieldName = 'ldap'.static::$strPrefix.'PersonFilter';
+
+            if(!($strPreFilter = \Config::get($strFilterFieldName))) {
+                $strPreFilter = '(objectClass=*)';
+                
+                // TODO DCA not available here when loggin in
+                //$GLOBALS['TL_DCA']['tl_settings']
+                //    ['fields'][$strFilterFieldName]['default'];
+            }
+
+            $strFilter = '(&(' . 
+                \Config::get('ldap' . static::$strPrefix . 'LdapUsernameField') . 
+                '=' . $strUsername . ')' . 
+                $strPreFilter .')'; 
 
             $arrAttributes = static::$arrRequiredAttributes;
             $arrAttributes = static::addAttributes($arrAttributes);
 
             // search by username
-            $strQuery = ldap_search($objConnection, \Config::get('ldap' . static::$strPrefix . 'PersonBase'), $strFilter, $arrAttributes);
+            try{
+                $strQuery = ldap_search(
+                    $objConnection,
+                    \Config::get('ldap' . static::$strPrefix . 'PersonBase'),
+                    $strFilter,
+                    $arrAttributes);
 
+            } catch (\ErrorException $ee) {
 
+                // TODO die...
+                die('Ex: ldap search failed ('.__CLASS__.'::'.__FUNCTION__.')');
+                return false;
+            }
 
             if (!$strQuery) {
             	die('findByUsername: query failed');

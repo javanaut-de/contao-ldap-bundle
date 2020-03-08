@@ -31,20 +31,40 @@ abstract class LdapPersonGroupModel extends \Model
 
         if ($objConnection) {
 
+            // TODO comment default mechanism
+            $strFilterFieldName = 'ldap'.static::$strPrefix.'GroupFilter';
+
+            if(!($strFilter = \Config::get($strFilterFieldName))) {
+                $strFilter = '(objectClass=*)';
+                
+                // TODO DCA not available here when loggin in
+                //$GLOBALS['TL_DCA']['tl_settings']
+                //    ['fields'][$strFilterFieldName]['default'];
+            }
+
 			/*
 			 * ldap_search(<link>, <dn>, <filter>, <fields>)
 			 *
 			 * filter: (string) Ldap Suchklausel (objectClass=*)
 			 * fields: (array) Angeforderte Attribute ['dn','cn']
 			 */
-            $strQuery = ldap_search(
-                $objConnection,
-                \Config::get('ldap'.static::$strPrefix.'GroupBase'),
-                "(objectClass=*)",
-                static::$arrRequiredAttributes
-            );
+            try{
+                $strQuery = ldap_search(
+                    $objConnection,
+                    \Config::get('ldap'.static::$strPrefix.'GroupBase'),
+                    $strFilter,
+                    static::$arrRequiredAttributes
+                );
+            } catch (\ErrorException $ee) {
+
+                // TODO die...
+                die('Ex: ldap search failed ('.__CLASS__.'::'.__FUNCTION__.')');
+                return false;
+            }
 
             if (!$strQuery) {
+
+                // TODO die...
             	die('ldap query failed');
                 return false;
             }
