@@ -1,15 +1,22 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.0.3] - 2020-03-09
+
+### Changed
+- Updated this file
+
 ## [0.0.2] - 2020-03-09
 
-### Added
+### Changed
 - Updated this file
 
 ## [0.0.1] - 2020-03-08
 
 ### Added
 - Wrapped in Contao 4.x bundle
+
+### Changed
 - Restarted version counting
 
 ### Fixed
