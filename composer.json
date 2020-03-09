@@ -1,9 +1,9 @@
 {
-    "name": "refulgent/contao-ldap",
+    "name": "refulgent/contao-ldap-bundle",
     "description":"Modification of module contao-ldap from Heimrich & Hannot to support Contao 4.4",
     "keywords":["contao", "ldap", "auth", "module", "developer"],
     "type": "contao-module",
-    "homepage":"https://github.com/refulgent-de/contao-ldap",
+    "homepage":"https://github.com/refulgent-de/contao-ldap-bundle",
     "license":"LGPL-3.0+",
     "authors":[
         {
@@ -19,7 +19,7 @@
         }
     ],
     "support":{
-        "issues":"https://github.com/refulgent-de/contao-ldap/issues"
+        "issues":"https://github.com/refulgent-de/contao-ldap-bundle/issues"
     },
     "require": {
         "contao/core": "^4.4",
