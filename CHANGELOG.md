@@ -1,6 +1,20 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.0.2] - 2020-03-09
+
+### Added
+- Updated this file
+
+## [0.0.1] - 2020-03-08
+
+### Added
+- Wrapped in Contao 4.x bundle
+- Restarted version counting
+
+### Fixed
+- Rewritten/refactored a lot of code in order to get extension running under Contao 4.x
+
 ## [2.0.4] - 2018-02-28
 
 ### Added
