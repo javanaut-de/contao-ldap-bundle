@@ -2,7 +2,7 @@
 
 namespace Refulgent\ContaoLDAPSupport;
 
-use HeimrichHannot\Request\Request;
+//use HeimrichHannot\Request\Request;
 
 class Ldap extends \System
 {
@@ -56,7 +56,7 @@ class Ldap extends \System
         }
         else
         {
-            if (Request::getGet('do') !== 'settings')
+            if (\Input::get('do') !== 'settings') // TODO Request
             {
                 throw new \Exception('Please fully configure your LDAP connection at first.');
             }

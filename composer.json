@@ -1,54 +1,60 @@
-	{
-    "name": "refulgent/contao-ldap-bundle",
-    "description":"Modification of module contao-ldap from Heimrich & Hannot to support Contao 4.4",
-    "keywords":["contao", "ldap", "auth", "module", "developer"],
-    "type": "contao-bundle",
-    "homepage":"https://github.com/refulgent-de/contao-ldap-bundle",
-    "license":"LGPL-3.0+",
-    "authors":[
-        {
-            "name":"Heimrich & Hannot",
-            "email":"digitales@heimrich-hannot.de",
-            "homepage":"http://www.heimrich-hannot.de",
-            "role":"Developer"
+    {
+        "name": "refulgent/contao-ldap-bundle",
+        "description": "Adds LDAP functionality to Contao",
+        "keywords": [
+            "contao",
+            "ldap",
+            "auth",
+            "module",
+            "developer"
+        ],
+        "type": "contao-bundle",
+        "homepage": "https://github.com/refulgent-de/contao-ldap-bundle",
+        "license": "LGPL-3.0+",
+        "authors": [
+            {
+                "name": "Heimrich & Hannot",
+                "email": "digitales@heimrich-hannot.de",
+                "homepage": "http://www.heimrich-hannot.de",
+                "role": "Developer"
+            },
+            {
+                "name": "Javanaut",
+                "email": "javanaut@refulgent.de",
+                "role": "Developer"
+            }
+        ],
+        "support": {
+            "issues": "https://github.com/refulgent-de/contao-ldap-bundle/issues"
         },
-        {
-            "name":"Javanaut",
-            "email":"javanaut@refulgent.de",
-            "role":"Developer"
-        }
-    ],
-    "support":{
-        "issues":"https://github.com/refulgent-de/contao-ldap-bundle/issues"
-    },
-    "require": {
-        "contao/core-bundle": "^4.4",
-        "heimrichhannot/contao-request": "^1.0.0",
-        "heimrichhannot/contao-multi_column_editor": "^1.0.0"
-    },
-	"require-dev": {
-		"symfony/debug-bundle": "^3.3 || ^4.0"
-	},
-   "extra": {
-        "contao-manager-plugin": "Refulgent\\ContaoLDAPSupportBundle\\ContaoManager\\Plugin"
-    },
-    "autoload": {
-        "psr-4": {
-            "Refulgent\\ContaoLDAPSupportBundle\\": "src/"
+        "require": {
+            "contao/core-bundle": "^4.4",
+            "heimrichhannot/contao-multi-column-editor-bundle": "^1.0"
         },
-		"classmap": [
-			"src/Resources/contao" 
-		],
-		"exclude-from-classmap": [
-			"src/Resources/contao/config",
-			"src/Resources/contao/dca",
-			"src/Resources/contao/languages",
-			"src/Resources/contao/templates"
-		]
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Refulgent\\ContaoLDAPSupportBundle\\Tests\\": "tests/"
+        "require-dev": {
+            "symfony/debug-bundle": "^3.3 || ^4.0",
+            "phpunit/phpunit": "^8.5"
+        },
+        "extra": {
+            "contao-manager-plugin": "Refulgent\\ContaoLDAPSupportBundle\\ContaoManager\\Plugin"
+        },
+        "autoload": {
+            "psr-4": {
+                "Refulgent\\ContaoLDAPSupportBundle\\": "src/"
+            },
+            "classmap": [
+                "src/Resources/contao"
+            ],
+            "exclude-from-classmap": [
+                "src/Resources/contao/config",
+                "src/Resources/contao/dca",
+                "src/Resources/contao/languages",
+                "src/Resources/contao/templates"
+            ]
+        },
+        "autoload-dev": {
+            "psr-4": {
+                "Refulgent\\ContaoLDAPSupportBundle\\Tests\\": "tests/"
+            }
         }
     }
-}
