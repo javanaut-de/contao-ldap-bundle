@@ -23,7 +23,6 @@
     },
     "require": {
         "contao/core-bundle": "^4.4",
-        "heimrichhannot/contao-request": "^1.0.0",
         "heimrichhannot/contao-multi_column_editor": "^1.0.0"
     },
 	"require-dev": {
