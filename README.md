@@ -2,7 +2,7 @@
 
 Adds LDAP support for frontend and backend.
 
-![alt Archive](docs/screenshot.png)
+![alt Archive](docs/img/screenshot.png)
 
 *Configuration*
 
