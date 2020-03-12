@@ -37,7 +37,7 @@ class LdapPerson
             $ldapGroupClass::updateGroups($arrSelectedLdapGroups);
 
             static::updatePerson(
-                $objLocalPerson = static::createPerson($arrLdapPerson),
+                $objLocalPerson = static::createPerson($arrLdapPerson, $arrSelectedLdapGroups),
                 $arrLdapPerson,
                 $arrSelectedLdapGroups);
 
@@ -182,7 +182,7 @@ class LdapPerson
                 $collectionLocalPerson = $strLocalModelClass::findBy('dn', $strDN);
 
                 if($collectionLocalPerson === null) {
-                    $objLocalPerson = static::createPerson($arrLdapPerson) ;
+                    $objLocalPerson = static::createPerson($arrLdapPerson, $arrSelectedLdapGroups) ;
                 } else {
                     $objLocalPerson = $collectionLocalPerson->current();
                 }
@@ -221,7 +221,7 @@ class LdapPerson
     /*
      * TODO description
      */
-    public static function createPerson($arrLdapPerson) {
+    public static function createPerson($arrLdapPerson, $arrSelectedLdapGroups) {
 
         $arrSkipUsernames = \StringUtil::trimsplit(',', 
             \Config::get('ldap' . static::$strPrefix . 'SkipLdapUsernames'));
@@ -247,6 +247,13 @@ class LdapPerson
             $objLocalPerson->useCE = true;
             $objLocalPerson->thumbnails = true;
             $objLocalPerson->backendTheme = 'flexible';
+        }
+
+        // TODO Assigned groups are yet not updated here
+        if (isset($GLOBALS['TL_HOOKS']['ldapAddPerson']) && is_array($GLOBALS['TL_HOOKS']['ldapAddPerson'])) {
+            foreach ($GLOBALS['TL_HOOKS']['ldapAddPerson'] as $callback) {
+                $callback[0]->{$callback[1]}($objLocalPerson, $arrSelectedLdapGroups);
+            }
         }
 
         return $objLocalPerson;
@@ -289,6 +296,12 @@ class LdapPerson
         $objLocalPerson->password = md5(time() . $objLocalPerson->username);
         
         static::updateAssignedGroups($objLocalPerson, $arrSelectedLdapGroups);
+
+        if (isset($GLOBALS['TL_HOOKS']['ldapUpdatePerson']) && is_array($GLOBALS['TL_HOOKS']['ldapUpdatePerson'])) {
+            foreach ($GLOBALS['TL_HOOKS']['ldapUpdatePerson'] as $callback) {
+                $callback[0]->{$callback[1]}($objLocalPerson, $arrSelectedLdapGroups);
+            }
+        }
     }
 
     public static function applyFieldMapping($objPerson, $arrRemoteLdapPerson)

@@ -114,7 +114,8 @@ abstract class LdapPersonGroupModel extends \Model
         if($collectionLocalGroups !== null) {
             while ($collectionLocalGroups->next()) {
                 if($collectionLocalGroups->dn !== null) {
-                    $arrImportedLdapGroups[] = $collectionLocalGroups->current();
+                    $arrImportedLdapGroups[] =
+                        $collectionLocalGroups->current();
                 }
             }
         }
