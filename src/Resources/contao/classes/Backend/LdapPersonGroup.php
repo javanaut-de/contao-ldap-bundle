@@ -8,6 +8,8 @@ use Contao\Widget;
 
 use Contao\CoreBundle\Monolog\ContaoContext;
 
+use Refulgent\ContaoLDAPSupport\LPersonModel;
+
 class LdapPersonGroup
 {
     protected static $strPrefix          = '';
@@ -103,6 +105,10 @@ class LdapPersonGroup
 			->info('Result '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'varValue' => $varValue));
+
+		$testUser = LPersonModel::findById(1);
+		$testLdapUser = LPersonModel::findOneByDn('uid=javanauz,ou=members,ou=people,ou=grateful death,dc=refulgent,dc=de');
+		dump($testUser, $testLdapUser, LPersonModel::FILTER['RFC2307bis']);
 
 		return $varValue;
 	}

@@ -30,6 +30,22 @@ $arrDca['subpalettes']['addLdapForUsers']   = '';
  */
 
 $arrFields = [
+    'directoryType' => [
+        'label'     => &$GLOBALS['TL_LANG']['tl_settings']['directoryType'],
+        'default'   => 'OpenLDAP',
+        'exclude'   => true,
+        'inputType' => 'select',
+        'options'   => ['OpenLDAP','Microsoft AD','ApacheDS','Custom'],
+        'eval'      => ['tl_class' => 'w50', 'includeBlankOption' => false],
+    ],
+    'groupType' => [
+        'label'     => &$GLOBALS['TL_LANG']['tl_settings']['groupType'],
+        'default'   => 'RFC2307bis',
+        'exclude'   => true,
+        'inputType' => 'select',
+        'options'   => ['RFC2307bis','Posix','groupOfNames','Custom'],
+        'eval'      => ['tl_class' => 'w50', 'includeBlankOption' => false],
+    ],
     'host'                => [
         'label'     => &$GLOBALS['TL_LANG']['tl_settings']['host'],
         'exclude'   => true,

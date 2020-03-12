@@ -7,6 +7,8 @@ $arrLang = &$GLOBALS['TL_LANG']['tl_settings'];
  */
 $arrLang['addLdapForMembers']   = ['Enable LDAP for members', 'Activate the login using LDAP for members.'];
 $arrLang['addLdapForUsers']     = ['Enable LDAP for users', 'Activate the login using LDAP for users.'];
+$arrLang['directoryType'] = ['Directory type','LDAP, AD, ...'];
+$arrLang['groupType'] =     ['Group type','LDAP, Posix, ...'];
 $arrLang['host']                = ['Host', 'IP address or DNS name of the LDAP server.'];
 $arrLang['port']                = ['Port', 'Standard port: 389, SSL port: 636.'];
 $arrLang['personBase']          = ['Base DN (users)', 'Base distinguished name for users (e.g. cn=users,dc=company,dc=com).'];
