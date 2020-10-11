@@ -54,9 +54,13 @@ abstract class LdapPersonModel extends \Model
                     $arrAttributes
                 );
             } catch (\ErrorException $ee) {
+                \System::getContainer()
+                    ->get('monolog.logger.contao')
+                    ->error('Exception occurred on LDAP search '.__CLASS__.'::'.__FUNCTION__,
+                        array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+                            'error' => $ee));
 
-                // TODO die...
-                die( 'Ex: ldap search failed ('.__CLASS__.'::'.__FUNCTION__.')' );
+                \Message::addError('LDAP search failed');
                 return false;
             }
 
@@ -183,14 +187,18 @@ abstract class LdapPersonModel extends \Model
                     $arrAttributes);
 
             } catch (\ErrorException $ee) {
+                \System::getContainer()
+                    ->get('monolog.logger.contao')
+                    ->error('Exception occurred on LDAP search '.__CLASS__.'::'.__FUNCTION__,
+                        array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+                            'error' => $ee));
 
-                // TODO die...
-                die('Ex: ldap search failed ('.__CLASS__.'::'.__FUNCTION__.')');
+                \Message::addError('LDAP search failed');
                 return false;
             }
 
             if (!$strQuery) {
-            	die('findByUsername: query failed');
+                \Message::addError('LDAP query failed');
                 return null;
             }
 
