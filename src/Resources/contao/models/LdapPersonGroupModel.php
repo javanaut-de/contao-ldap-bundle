@@ -22,7 +22,7 @@ abstract class LdapPersonGroupModel extends \Model
     public static function findAll(array $arrOptions = [])
     { 
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrOptions' => $arrOptions));
@@ -94,7 +94,7 @@ abstract class LdapPersonGroupModel extends \Model
             }
 
 			\System::getContainer()
-				->get('logger')
+				->get('monolog.logger.contao')
 				->info('Result '.__CLASS__.'::'.__FUNCTION__,
 					array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 						'arrGroups' => $arrGroups));
@@ -137,7 +137,7 @@ abstract class LdapPersonGroupModel extends \Model
             true);
     
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Result '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrSelectedLdapGroups' => $arrSelectedLdapGroups));
@@ -154,7 +154,7 @@ abstract class LdapPersonGroupModel extends \Model
     public static function getLocalLdapGroupIds($arrRemoteLdapGroupDNs)
     {
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrRemoteLdapGroupDNs' => $arrRemoteLdapGroupDNs));
@@ -172,7 +172,7 @@ abstract class LdapPersonGroupModel extends \Model
         }
 
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Result '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrResult' => $arrResult));
