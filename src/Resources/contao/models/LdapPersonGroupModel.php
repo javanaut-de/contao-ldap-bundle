@@ -60,9 +60,10 @@ abstract class LdapPersonGroupModel extends \Model
                     ->get('monolog.logger.contao')
                     ->error('Exception occurred on LDAP search '.__CLASS__.'::'.__FUNCTION__,
                         array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
-                            'error' => $ee));
+                            'error' => $ee,
+                            'filter' => $strFilter));
 
-                \Message::addError('Exception occurred on LDAP search');
+                \Message::addError('Exception occurred on LDAP search: ' . $ee->getMessage());
                 return false;
             }
 

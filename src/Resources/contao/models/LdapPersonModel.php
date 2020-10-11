@@ -58,9 +58,11 @@ abstract class LdapPersonModel extends \Model
                     ->get('monolog.logger.contao')
                     ->error('Exception occurred on LDAP search '.__CLASS__.'::'.__FUNCTION__,
                         array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
-                            'error' => $ee));
+                            'error' => $ee,
+                            'filter' => $strFilter,
+                            'attributes' => $arrAttributes));
 
-                \Message::addError('LDAP search failed');
+                \Message::addError('LDAP search failed: ' . $ee->getMessage());
                 return false;
             }
 
@@ -191,9 +193,11 @@ abstract class LdapPersonModel extends \Model
                     ->get('monolog.logger.contao')
                     ->error('Exception occurred on LDAP search '.__CLASS__.'::'.__FUNCTION__,
                         array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
-                            'error' => $ee));
+                            'error' => $ee,
+                            'filter' => $strFilter,
+                            'attributes' => $arrAttributes));
 
-                \Message::addError('LDAP search failed');
+                \Message::addError('LDAP search failed: ' . $ee->getMessage());
                 return false;
             }
 
