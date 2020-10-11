@@ -84,6 +84,13 @@ $arrFields = [
         'default'   => 'uid',
         'eval'      => ['mandatory' => true, 'maxlength' => 64, 'tl_class' => 'w50'],
     ],
+    'ldapGroupMemberField'   => [
+        'label'     => &$GLOBALS['TL_LANG']['tl_settings']['ldapGroupMemberField'],
+        'exclude'   => true,
+        'inputType' => 'text',
+        'default'   => 'uniqueMember',
+        'eval'      => ['mandatory' => true, 'maxlength' => 64, 'tl_class' => 'w50'],
+    ],
     'skipLdapUsernames'   => [
         'label'     => &$GLOBALS['TL_LANG']['tl_settings']['skipLdapUsernames'],
         'exclude'   => true,

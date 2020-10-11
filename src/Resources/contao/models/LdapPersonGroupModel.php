@@ -9,7 +9,7 @@ use Contao\Model\Collection;
 abstract class LdapPersonGroupModel extends \Model
 {
 
-    protected static $arrRequiredAttributes = ['cn', 'uniqueMember']; // TODO dn?
+    protected static $arrRequiredAttributes = ['cn']; // TODO dn?
     protected static $strPrefix             = '';
     protected static $strLdapModel          = '';
     protected static $strLocalModel         = '';
@@ -30,6 +30,7 @@ abstract class LdapPersonGroupModel extends \Model
         $objConnection = Ldap::getConnection(strtolower(static::$strPrefix));
 
         if ($objConnection) {
+            $memberAttribute = \Config::get('ldap'.static::$strPrefix . 'ldapGroupMemberField');
 
             // TODO comment default mechanism
             $strFilterFieldName = 'ldap'.static::$strPrefix.'GroupFilter';
@@ -53,7 +54,7 @@ abstract class LdapPersonGroupModel extends \Model
                     $objConnection,
                     \Config::get('ldap'.static::$strPrefix.'GroupBase'),
                     $strFilter,
-                    static::$arrRequiredAttributes
+                    array_merge(static::$arrRequiredAttributes, $memberAttribute)
                 );
             } catch (\ErrorException $ee) {
                 \System::getContainer()
@@ -86,12 +87,12 @@ abstract class LdapPersonGroupModel extends \Model
                 }
                 
 				// matching groupOfUniqueNames
-                if (array_key_exists('uniquemember',$arrGroup)) {
+                if (array_key_exists($memberAttribute, $arrGroup)) {
                 
 					$arrGroups[] = [
 						'dn' 	=> $arrGroup['dn'],
 						'cn'   => $arrGroup['cn'][0],
-                        'persons' => $arrGroup['uniquemember']['count'] > 0 ? $arrGroup['uniquemember'] : []
+                        'persons' => $arrGroup[$memberAttribute]['count'] > 0 ? $arrGroup[$memberAttribute] : []
                     ];
 				}
             }
@@ -100,7 +101,8 @@ abstract class LdapPersonGroupModel extends \Model
 				->get('monolog.logger.contao')
 				->info('Result '.__CLASS__.'::'.__FUNCTION__,
 					array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
-						'arrGroups' => $arrGroups));
+						'arrGroups' => $arrGroups,
+                        'arrResult' => $arrResult));
 
             return $arrGroups;
         } else {
