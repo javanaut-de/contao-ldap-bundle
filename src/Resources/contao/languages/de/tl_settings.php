@@ -36,6 +36,7 @@ $arrLang['binddn']              = [
     'Bind DN',
     'Suchfilter für den Benutzer, der für die Anmeldung am Server genutzt werden soll (Beispiel: CN=ldapadmin,CN=users,DC=sampledomain,DC=com; bei ActiveDirectories kann auch <Domain>\<User> genutzt werden.).'
 ];
+$arrLang['ldapGroupMemberField']= ['LDAP-Gruppenmitgliederfeld', 'Name des Attributs, welches Mitglieder einer Gruppe kennzeichnet (Standard: uniqueMember).'];
 $arrLang['password']            = ['Bind DN Passwort', 'Geben Sie das Passwort für den Bind DN-Benutzer an.'];
 $arrLang['groups']              = ['Zu importierende Gruppen', 'Legen Sie fest, welche LDAP-Mitgliedergruppen verfügbar sein sollen.'];
 $arrLang['skipLdapUsernames']   = [

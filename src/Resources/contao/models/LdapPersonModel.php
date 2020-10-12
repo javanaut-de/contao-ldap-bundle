@@ -25,7 +25,7 @@ abstract class LdapPersonModel extends \Model
     public static function findAll(array $arrOptions = [])
     {
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrOptions' => $arrOptions));
@@ -54,9 +54,15 @@ abstract class LdapPersonModel extends \Model
                     $arrAttributes
                 );
             } catch (\ErrorException $ee) {
+                \System::getContainer()
+                    ->get('monolog.logger.contao')
+                    ->error('Exception occurred on LDAP search '.__CLASS__.'::'.__FUNCTION__,
+                        array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+                            'error' => $ee,
+                            'filter' => $strFilter,
+                            'attributes' => $arrAttributes));
 
-                // TODO die...
-                die( 'Ex: ldap search failed ('.__CLASS__.'::'.__FUNCTION__.')' );
+                \Message::addError('LDAP search failed: ' . $ee->getMessage());
                 return false;
             }
 
@@ -71,7 +77,7 @@ abstract class LdapPersonModel extends \Model
             }
 
 			\System::getContainer()
-				->get('logger')
+				->get('monolog.logger.contao')
 				->info('Result '.__CLASS__.'::'.__FUNCTION__,
 					array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL), 
 						'arrResult' => $arrResult));
@@ -87,7 +93,7 @@ abstract class LdapPersonModel extends \Model
     /*public static function findByDn($strUserDN)
     {
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'strUserDN' => $strUserDN));
@@ -117,7 +123,7 @@ abstract class LdapPersonModel extends \Model
             }
 
 			\System::getContainer()
-				->get('logger')
+				->get('monolog.logger.contao')
 				->info('Result[0] '.__CLASS__.'::'.__FUNCTION__,
 					array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 						'arrResult' => $arrResult));
@@ -148,7 +154,7 @@ abstract class LdapPersonModel extends \Model
     public static function findByUsername($strUsername)
     {
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'strUsername' => $strUsername));
@@ -183,14 +189,20 @@ abstract class LdapPersonModel extends \Model
                     $arrAttributes);
 
             } catch (\ErrorException $ee) {
+                \System::getContainer()
+                    ->get('monolog.logger.contao')
+                    ->error('Exception occurred on LDAP search '.__CLASS__.'::'.__FUNCTION__,
+                        array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
+                            'error' => $ee,
+                            'filter' => $strFilter,
+                            'attributes' => $arrAttributes));
 
-                // TODO die...
-                die('Ex: ldap search failed ('.__CLASS__.'::'.__FUNCTION__.')');
+                \Message::addError('LDAP search failed: ' . $ee->getMessage());
                 return false;
             }
 
             if (!$strQuery) {
-            	die('findByUsername: query failed');
+                \Message::addError('LDAP query failed');
                 return null;
             }
 
@@ -201,7 +213,7 @@ abstract class LdapPersonModel extends \Model
             }
 
 			\System::getContainer()
-				->get('logger')
+				->get('monolog.logger.contao')
 				->info('Result[0] '.__CLASS__.'::'.__FUNCTION__,
 					array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 						'arrResult' => $arrResult));
@@ -215,7 +227,7 @@ abstract class LdapPersonModel extends \Model
     private static function addAttributes($arrAttributes)
     {
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrAttributes' => $arrAttributes));
@@ -235,7 +247,7 @@ abstract class LdapPersonModel extends \Model
         }
 
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Result '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrAttributes' => $arrAttributes));
@@ -250,7 +262,7 @@ abstract class LdapPersonModel extends \Model
     public static function findAssignedGroups($strUserDN)
     {
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
                     'strUserDN' => $strUserDN));
@@ -277,7 +289,7 @@ abstract class LdapPersonModel extends \Model
         }
 
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Result '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrGroups' => $arrGroups));

@@ -21,7 +21,7 @@ class LdapPerson
     public function importPersonFromLdap($strUsername, $strPassword, $strTable)
     {
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'strUsername' => $strUsername,
@@ -60,7 +60,7 @@ class LdapPerson
     public function authenticateAgainstLdap($strUsername, $strPassword, $objLocalPerson)
     {
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'strUsername' => $strUsername,
@@ -96,7 +96,7 @@ class LdapPerson
     public static function authenticateLdapPerson($strUsername, $strPassword)
     {
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'strUsername' => $strUsername,
@@ -120,7 +120,7 @@ class LdapPerson
 		} catch (\ErrorException $ee) {
 
             \System::getContainer()
-                ->get('logger')
+                ->get('monolog.logger.contao')
                 ->error(
                     'Exception '.__CLASS__.'::'.__FUNCTION__,
                     array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
@@ -137,7 +137,7 @@ class LdapPerson
     public static function updatePersons($arrSelectedLdapGroups) {
 
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrSelectedLdapGroups' => $arrSelectedLdapGroups));
@@ -264,7 +264,7 @@ class LdapPerson
     public static function updatePerson($objLocalPerson, $arrLdapPerson, $arrSelectedLdapGroups)
     {        
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'objLocalPerson' => $objLocalPerson,
@@ -294,7 +294,7 @@ class LdapPerson
     public static function applyFieldMapping($objPerson, $arrRemoteLdapPerson)
     {
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'objPerson' => $objPerson,
@@ -335,7 +335,7 @@ class LdapPerson
     private static function getLdapField($arrRemoteLdapPerson, $strLdapField)
     {
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrRemoteLdapPerson' => $arrRemoteLdapPerson,
@@ -371,7 +371,7 @@ class LdapPerson
     public static function applyDefaultValues($objPerson)
     {
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'objPerson' => $objPerson));
@@ -393,7 +393,7 @@ class LdapPerson
     public static function updateAssignedGroups($objLocalPerson, $arrSelectedLdapGroups) {
 
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'objPerson' => $objLocalPerson,

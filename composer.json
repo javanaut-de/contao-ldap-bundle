@@ -29,7 +29,8 @@
         },
         "require": {
             "contao/core-bundle": "^4.4",
-            "heimrichhannot/contao-multi-column-editor-bundle": "^1.0"
+            "heimrichhannot/contao-multi-column-editor-bundle": "^1.0",
+            "ext-ldap": "*"
         },
         "require-dev": {
             "symfony/debug-bundle": "^3.3 || ^4.0",

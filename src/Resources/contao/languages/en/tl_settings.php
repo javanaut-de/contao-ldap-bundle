@@ -36,6 +36,7 @@ $arrLang['binddn']              = [
     'Bind user DN',
     'Distinguished name of the LDAP user used to bind to the LDAP server (e.g. cn=ldapadmin,cn=users,dc=domain,dc=com; for AD &lt;Domain&gt;\&lt;User&gt; can be used).'
 ];
+$arrLang['ldapGroupMemberField']= ['LDAP group member key', 'Name ot the attribute used for members of a group (defaults: uniqueMember).'];
 $arrLang['password']            = ['Bind user password', 'Enter the password for the bind user.'];
 $arrLang['groups']              = ['Groups to import', 'Define which LDAP member groups should be available.'];
 $arrLang['skipLdapUsernames']   = [

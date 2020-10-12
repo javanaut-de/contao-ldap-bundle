@@ -27,7 +27,7 @@ class LdapPersonGroup
     public static function getLdapGroupsAsOptions()
     {
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL)));
 
@@ -49,7 +49,7 @@ class LdapPersonGroup
         asort($arrGroups);
 
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Result '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrGroups' => $arrGroups));
@@ -69,7 +69,7 @@ class LdapPersonGroup
 	public static function storeSettings($varValue) {
 
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'varValue' => $varValue));
@@ -99,7 +99,7 @@ class LdapPersonGroup
 		$ldapPersonClass::updatePersons($arrSelectedLdapGroups);
 
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Result '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'varValue' => $varValue));
@@ -116,7 +116,7 @@ class LdapPersonGroup
     public static function loadPersonGroups($value, $container) {
 
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'value' => $value,
@@ -137,7 +137,7 @@ class LdapPersonGroup
 		}
 
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Result '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'value' => $value));
@@ -164,7 +164,7 @@ class LdapPersonGroup
     public static function updateGroups($arrSelectedLdapGroups = []) {
 
 		\System::getContainer()
-			->get('logger')
+			->get('monolog.logger.contao')
 			->info('Invoke '.__CLASS__.'::'.__FUNCTION__,
 				array('contao' => new ContaoContext(__CLASS__.'::'.__FUNCTION__, TL_GENERAL),
 					'arrSelectedLdapGroups' => $arrSelectedLdapGroups));
