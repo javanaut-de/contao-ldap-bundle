@@ -42,6 +42,7 @@ $arrFields = [
         'inputType' => 'text',
         'default'   => 389,
         'eval'      => ['mandatory' => true, 'maxlength' => 5, 'rgxp' => 'digit', 'tl_class' => 'w50'],
+        'load_callback' => [['DefaultHandler', 'getDefaultValue']],
     ],
     'binddn'              => [
         'label'     => &$GLOBALS['TL_LANG']['tl_settings']['binddn'],
@@ -62,6 +63,7 @@ $arrFields = [
         'inputType' => 'select',
         'options'   => ['ssl'],
         'eval'      => ['tl_class' => 'w50', 'includeBlankOption' => true],
+        'load_callback' => [['DefaultHandler', 'getDefaultValue']],
     ],
     'personBase'          => [
         'label'     => &$GLOBALS['TL_LANG']['tl_settings']['personBase'],
@@ -90,6 +92,7 @@ $arrFields = [
         'inputType' => 'text',
         'default'   => 'uniqueMember',
         'eval'      => ['mandatory' => true, 'maxlength' => 64, 'tl_class' => 'w50'],
+        'load_callback' => [['DefaultHandler', 'getDefaultValue']],
     ],
     'skipLdapUsernames'   => [
         'label'     => &$GLOBALS['TL_LANG']['tl_settings']['skipLdapUsernames'],
